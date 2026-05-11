@@ -34,6 +34,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignHCenter
                     onClicked: stackView.push("qrc:/qml/pages/ArticlesPage.qml")
+
                 }
 
                 Button {
@@ -56,6 +57,7 @@ ApplicationWindow {
 
         StackView {
             id: stackView
+            property alias appStackView: stackView
             Layout.fillWidth: true
             Layout.fillHeight: true
 
