@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.10)
 project(metanit_port)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_PREFIX_PATH "/opt/homebrew/opt/qt/lib/cmake/Qt6")  
 
 find_package(Qt6 REQUIRED 
     COMPONENTS 
@@ -15,20 +14,27 @@ find_package(Qt6 REQUIRED
         Quick
 )
 
+qt_standard_project_setup()
+
 set(SOURCES 
-    src/main.cpp
+    src/app/main.cpp
 )
 
 set(INCLUDES
 
 )
 
+qt6_add_resources(RESOURCES
+    src/ui/resources.qrc
+)
+
 add_executable(metanit_port
     ${SOURCES}
     ${INCLUDES}
+    ${RESOURCES}
 )
 
-target_link_libraries(DayPlanner 
+target_link_libraries(metanit_port
     PRIVATE 
         Qt6::Core
         Qt6::Gui

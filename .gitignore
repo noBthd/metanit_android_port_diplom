@@ -43,6 +43,7 @@ CTestTestfile.cmake
 _deps
 
 # Build directories
+.cache/
 build/
 cmake-build-*/
 out/
