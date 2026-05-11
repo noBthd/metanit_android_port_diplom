@@ -15,7 +15,7 @@ func main() {
 
 	articles := c.Run()
 
-	err := storage.SaveArticles("../output/articles.json", articles)
+	err := storage.SaveArticles("../../../data/articles.json", articles)
 	if err != nil {
 		panic(err)
 	}
