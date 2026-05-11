@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"fmt"
+	"strings"
 
 	"metanit_crawler/internal/model"
 
@@ -42,9 +43,12 @@ func (c *Crawler) Run() []model.Article {
 		}
 		seen[full] = true
 
+		var linkStrs = strings.Split(full, "/")
+
 		articles = append(articles, model.Article{
 			Title: text,
 			Link:  full,
+			File: strings.ReplaceAll(linkStrs[len(linkStrs)-1], "php", "md"),
 		})
 	})
 
