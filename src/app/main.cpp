@@ -7,6 +7,7 @@
 #include "services/article_service.h"
 #include "services/article_model.h"
 #include "services/markdown_service.h"
+#include "services/network_service.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,11 +19,10 @@ int main(int argc, char *argv[])
     ArticleModel model;
     ArticleFilterModel filterModel;
     MarkdownService markdownService;
+    NetworkService networkService;
 
-    // Load data
+    // Load local data as fallback
     QString appDir = QCoreApplication::applicationDirPath();
-    
-    // Try multiple paths for data
     QStringList dataPaths = {
         QDir(appDir).filePath("../../data/articles.json"),
         QDir(appDir).filePath("../data/articles.json"),
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("articlesModel", &model);
     engine.rootContext()->setContextProperty("filterModel", &filterModel);
     engine.rootContext()->setContextProperty("markdownService", &markdownService);
+    engine.rootContext()->setContextProperty("networkService", &networkService);
 
     engine.load(QUrl("qrc:/qml/main.qml"));
 

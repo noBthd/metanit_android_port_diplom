@@ -12,6 +12,7 @@ find_package(Qt6 REQUIRED
         Qml 
         QmlIntegration
         Quick
+        Network
 )
 
 qt_standard_project_setup()
@@ -21,6 +22,7 @@ set(SOURCES
     src/core/services/article_service.cpp
     src/core/services/article_model.cpp
     src/core/services/markdown_service.cpp
+    src/core/services/network_service.cpp
 )
 
 set(INCLUDES
@@ -28,6 +30,7 @@ set(INCLUDES
     src/core/services/article_service.h
     src/core/services/article_model.h
     src/core/services/markdown_service.h
+    src/core/services/network_service.h
 )
 
 qt6_add_resources(RESOURCES
@@ -55,4 +58,5 @@ target_link_libraries(metanit_port
         Qt6::Qml 
         Qt6::QmlIntegration
         Qt6::Quick
+        Qt6::Network
 )

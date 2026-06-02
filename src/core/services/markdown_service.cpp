@@ -48,9 +48,9 @@ QString MarkdownService::processInline(const QString &text)
     // Инлайн-код: `code`
     QRegularExpression inlineCode("`([^`]+)`");
     result.replace(inlineCode,
-        " <span style=\"font-family:'Menlo','Courier New',monospace;"
+        "<span style=\"font-family:'Menlo','Courier New',monospace;"
         "font-size:13px;color:#7ec8e3;"
-        "background-color:#2a2a3a;\">&#8198;\\1&#8198;</span> ");
+        "background-color:#262636;\"> \\1 </span>");
 
     // Жирный: **text**
     QRegularExpression bold("\\*\\*([^*]+)\\*\\*");
@@ -84,29 +84,20 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
         // Заголовки
         if (trimmed.startsWith("#### ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table>"
-                    "<br/>"
-                    "<p style=\"font-size:16px;font-weight:600;color:#e0e0e0;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(5))) + "</p><br/>";
+            html += "<p style=\"font-size:16px;font-weight:600;color:#e0e0e0;margin-top:16px;\">"
+                    + processInline(escapeHtml(trimmed.mid(5))) + "</p>";
             continue;
         }
         if (trimmed.startsWith("### ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table>"
-                    "<br/>"
-                    "<p style=\"font-size:18px;font-weight:600;color:#f0f0f0;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(4))) + "</p><br/>";
+            html += "<p style=\"font-size:18px;font-weight:600;color:#f0f0f0;margin-top:20px;\">"
+                    + processInline(escapeHtml(trimmed.mid(4))) + "</p>";
             continue;
         }
         if (trimmed.startsWith("## ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table>"
-                    "<br/>"
-                    "<p style=\"font-size:20px;font-weight:600;color:#ffffff;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(3))) + "</p><br/>";
+            html += "<p style=\"font-size:20px;font-weight:600;color:#ffffff;margin-top:24px;\">"
+                    + processInline(escapeHtml(trimmed.mid(3))) + "</p>";
             continue;
         }
         if (trimmed.startsWith("# ")) {
@@ -120,7 +111,7 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
         if (trimmed == "---" || trimmed == "***" || trimmed == "___") {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
             html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table><br/>";
+                    "<tr><td bgcolor=\"#333\" style=\"height:1;\"></td></tr></table>";
             continue;
         }
 

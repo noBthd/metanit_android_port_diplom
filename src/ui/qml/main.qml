@@ -99,6 +99,7 @@ ApplicationWindow {
                 Column {
                     anchors.centerIn: parent
                     spacing: 12
+                    visible: !networkService.isLoggedIn
 
                     Text {
                         text: "⭐"
@@ -113,10 +114,52 @@ ApplicationWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     Text {
-                        text: "Скоро появится"
+                        text: "Войдите в профиль, чтобы\nсохранять статьи в избранное"
                         color: "#8e8e93"
                         font.pixelSize: 15
+                        horizontalAlignment: Text.AlignHCenter
                         anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    Rectangle {
+                        width: 200; height: 44; radius: 10
+                        color: "#0a84ff"
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Войти"
+                            color: "#ffffff"
+                            font.pixelSize: 17
+                            font.weight: Font.Medium
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: tabStack.currentIndex = 3
+                        }
+                    }
+                }
+
+                // Favorites list when logged in
+                Column {
+                    anchors.fill: parent
+                    topPadding: 70
+                    visible: networkService.isLoggedIn
+
+                    Text {
+                        text: "Избранное"
+                        color: "#ffffff"
+                        font.pixelSize: 34
+                        font.weight: Font.Bold
+                        leftPadding: 20
+                        bottomPadding: 16
+                    }
+
+                    Text {
+                        text: "Пока пусто.\nДобавляйте статьи в избранное."
+                        color: "#8e8e93"
+                        font.pixelSize: 15
+                        leftPadding: 20
+                        visible: true // TODO: check favorites count
                     }
                 }
             }
@@ -156,6 +199,129 @@ ApplicationWindow {
                         font.pixelSize: 34
                         font.weight: Font.Bold
                         leftPadding: 20
+                    }
+
+                    // === Profile section ===
+                    Text {
+                        text: "ПРОФИЛЬ"
+                        color: "#8e8e93"
+                        font.pixelSize: 13
+                        leftPadding: 36
+                    }
+
+                    Rectangle {
+                        width: parent.width - 32
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: profileCol.height
+                        radius: 12
+                        color: "#1c1c1e"
+                        clip: true
+
+                        Column {
+                            id: profileCol
+                            width: parent.width
+
+                            // Logged in state
+                            Item {
+                                width: parent.width
+                                height: 58
+                                visible: networkService.isLoggedIn
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 16
+                                    anchors.rightMargin: 16
+                                    spacing: 12
+
+                                    Rectangle {
+                                        width: 36; height: 36; radius: 18
+                                        color: "#0a84ff"
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: networkService.username.length > 0 ? networkService.username[0].toUpperCase() : "?"
+                                            color: "#ffffff"
+                                            font.pixelSize: 18
+                                            font.weight: Font.Bold
+                                        }
+                                    }
+
+                                    Column {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+                                        Text {
+                                            text: networkService.username
+                                            color: "#ffffff"
+                                            font.pixelSize: 17
+                                        }
+                                        Text {
+                                            text: "Авторизован"
+                                            color: "#30d158"
+                                            font.pixelSize: 13
+                                        }
+                                    }
+                                }
+
+                                Rectangle {
+                                    anchors.bottom: parent.bottom
+                                    anchors.left: parent.left; anchors.leftMargin: 16
+                                    anchors.right: parent.right
+                                    height: 0.5; color: "#38383a"
+                                    visible: networkService.isLoggedIn
+                                }
+                            }
+
+                            // Logout button
+                            Item {
+                                width: parent.width
+                                height: 48
+                                visible: networkService.isLoggedIn
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Выйти из аккаунта"
+                                    color: "#ff453a"
+                                    font.pixelSize: 17
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: networkService.logout()
+                                }
+                            }
+
+                            // Not logged in: Login / Register buttons
+                            Item {
+                                width: parent.width
+                                height: 48
+                                visible: !networkService.isLoggedIn
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 16
+                                    anchors.rightMargin: 16
+
+                                    Text {
+                                        text: "Войти или зарегистрироваться"
+                                        color: "#0a84ff"
+                                        font.pixelSize: 17
+                                        Layout.fillWidth: true
+                                    }
+                                    Text { text: "›"; color: "#48484a"; font.pixelSize: 22 }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: settingsStack.push(authPage)
+                                }
+                            }
+                        }
+                    }
+
+                    // === Основные ===
+                    Text {
+                        text: "ОСНОВНЫЕ"
+                        color: "#8e8e93"
+                        font.pixelSize: 13
+                        leftPadding: 36
                     }
 
                     // Секция "Основные" — пустая, заглушки
@@ -438,6 +604,155 @@ ApplicationWindow {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // ==================== Auth Page (Login/Register) ====================
+    Component {
+        id: authPage
+
+        Rectangle {
+            color: "#000000"
+            property bool isRegister: false
+            property string errorMsg: ""
+
+            Connections {
+                target: networkService
+                function onAuthChanged() {
+                    if (networkService.isLoggedIn) settingsStack.pop()
+                }
+                function onAuthError(error) { errorMsg = error }
+            }
+
+            Flickable {
+                anchors.fill: parent
+                contentHeight: authCol.height + 120
+                clip: true
+
+                Column {
+                    id: authCol
+                    width: parent.width
+                    topPadding: 16
+                    spacing: 20
+
+                    // Back
+                    Item {
+                        width: parent.width; height: 44
+                        MouseArea {
+                            anchors.fill: authBackRow
+                            anchors.margins: -8
+                            onClicked: settingsStack.pop()
+                        }
+                        Row {
+                            id: authBackRow
+                            anchors.verticalCenter: parent.verticalCenter
+                            leftPadding: 8; spacing: 4
+                            Text { text: "‹"; color: "#0a84ff"; font.pixelSize: 28; anchors.verticalCenter: parent.verticalCenter }
+                            Text { text: "Настройки"; color: "#0a84ff"; font.pixelSize: 17; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                    }
+
+                    Text {
+                        text: isRegister ? "Регистрация" : "Вход"
+                        color: "#ffffff"
+                        font.pixelSize: 28
+                        font.weight: Font.Bold
+                        leftPadding: 20
+                    }
+
+                    // Error message
+                    Text {
+                        text: errorMsg
+                        color: "#ff453a"
+                        font.pixelSize: 14
+                        leftPadding: 20
+                        visible: errorMsg.length > 0
+                    }
+
+                    // Username field
+                    Rectangle {
+                        width: parent.width - 32
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
+
+                        TextInput {
+                            id: usernameInput
+                            anchors.fill: parent
+                            anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17
+                            verticalAlignment: TextInput.AlignVCenter
+
+                            Text {
+                                text: "Имя пользователя"
+                                color: "#8e8e93"; font.pixelSize: 17
+                                visible: !usernameInput.text && !usernameInput.activeFocus
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+                    }
+
+                    // Password field
+                    Rectangle {
+                        width: parent.width - 32
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
+
+                        TextInput {
+                            id: passwordInput
+                            anchors.fill: parent
+                            anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17
+                            verticalAlignment: TextInput.AlignVCenter
+                            echoMode: TextInput.Password
+
+                            Text {
+                                text: "Пароль"
+                                color: "#8e8e93"; font.pixelSize: 17
+                                visible: !passwordInput.text && !passwordInput.activeFocus
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+                    }
+
+                    // Submit button
+                    Rectangle {
+                        width: parent.width - 32; height: 48; radius: 10
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        color: "#0a84ff"
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: isRegister ? "Зарегистрироваться" : "Войти"
+                            color: "#ffffff"
+                            font.pixelSize: 17
+                            font.weight: Font.Medium
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                errorMsg = ""
+                                if (isRegister)
+                                    networkService.registerUser(usernameInput.text, passwordInput.text)
+                                else
+                                    networkService.login(usernameInput.text, passwordInput.text)
+                            }
+                        }
+                    }
+
+                    // Toggle login/register
+                    Text {
+                        text: isRegister ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"
+                        color: "#0a84ff"
+                        font.pixelSize: 15
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: isRegister = !isRegister
                         }
                     }
                 }
@@ -968,7 +1283,7 @@ ApplicationWindow {
                 // Header with copy button
                 Rectangle {
                     width: parent.width
-                    height: 32
+                    height: 36
                     color: "transparent"
 
                     Text {
@@ -983,22 +1298,24 @@ ApplicationWindow {
 
                     Rectangle {
                         anchors.right: parent.right
-                        anchors.rightMargin: 8
+                        anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
-                        width: copyRow.width + 16
-                        height: 26
-                        radius: 6
+                        width: copyRow.width + 18
+                        height: 24
+                        radius: 5
                         color: copyMa.pressed ? "#3a3a4e" : "#2a2a3a"
+                        border.color: "#3a3a4e"
+                        border.width: 0.5
 
                         Row {
                             id: copyRow
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: 5
 
                             Text {
                                 id: copyIcon
                                 text: "📋"
-                                font.pixelSize: 12
+                                font.pixelSize: 11
                                 anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
