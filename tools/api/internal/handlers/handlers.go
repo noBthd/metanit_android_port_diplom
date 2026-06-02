@@ -9,129 +9,160 @@ import (
 	"metanit_api/internal/models"
 )
 
-type Handler struct {
-	DB *db.DB
-}
+type Handler struct{ DB *db.DB }
 
-func jsonError(w http.ResponseWriter, msg string, code int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"error": msg})
-}
-
-func jsonOK(w http.ResponseWriter, data interface{}) {
+func j(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }
-
-func (h *Handler) getUserFromToken(r *http.Request) *models.User {
-	auth := r.Header.Get("Authorization")
-	if !strings.HasPrefix(auth, "Bearer ") {
-		return nil
-	}
-	user, err := h.DB.GetUserByToken(strings.TrimPrefix(auth, "Bearer "))
-	if err != nil {
-		return nil
-	}
-	return user
+func je(w http.ResponseWriter, msg string, code int) {
+	w.Header().Set("Content-Type", "application/json"); w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
+func (h *Handler) user(r *http.Request) *models.User {
+	auth := r.Header.Get("Authorization")
+	if !strings.HasPrefix(auth, "Bearer ") { return nil }
+	u, err := h.DB.GetUserByToken(strings.TrimPrefix(auth, "Bearer "))
+	if err != nil { return nil }
+	return u
+}
+
+// Auth
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "Некорректный запрос", 400); return
-	}
-	if len(req.Username) < 3 { jsonError(w, "Логин должен быть не менее 3 символов", 400); return }
-	if len(req.Password) < 4 { jsonError(w, "Пароль должен быть не менее 4 символов", 400); return }
+	if json.NewDecoder(r.Body).Decode(&req) != nil { je(w, "Некорректный запрос", 400); return }
+	if len(req.Username) < 3 { je(w, "Логин от 3 символов", 400); return }
+	if len(req.Password) < 4 { je(w, "Пароль от 4 символов", 400); return }
 	if req.DisplayName == "" { req.DisplayName = req.Username }
 	resp, err := h.DB.Register(req.Username, req.Password, req.DisplayName)
-	if err != nil { jsonError(w, err.Error(), 409); return }
-	jsonOK(w, resp)
+	if err != nil { je(w, err.Error(), 409); return }
+	j(w, resp)
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "Некорректный запрос", 400); return
-	}
-	if req.Username == "" || req.Password == "" { jsonError(w, "Введите логин и пароль", 400); return }
+	if json.NewDecoder(r.Body).Decode(&req) != nil { je(w, "Некорректный запрос", 400); return }
+	if req.Username == "" || req.Password == "" { je(w, "Введите логин и пароль", 400); return }
 	resp, err := h.DB.Login(req.Username, req.Password)
-	if err != nil { jsonError(w, err.Error(), 401); return }
-	jsonOK(w, resp)
+	if err != nil { je(w, err.Error(), 401); return }
+	j(w, resp)
 }
 
 func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
-	user := h.getUserFromToken(r)
-	if user == nil { jsonError(w, "Необходима авторизация", 401); return }
-	jsonOK(w, user)
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	j(w, u)
 }
 
 func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	user := h.getUserFromToken(r)
-	if user == nil { jsonError(w, "Необходима авторизация", 401); return }
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
 	var req models.UpdateProfileRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "Некорректный запрос", 400); return
+	if json.NewDecoder(r.Body).Decode(&req) != nil { je(w, "Некорректный запрос", 400); return }
+	if err := h.DB.UpdateProfile(u.ID, req.DisplayName, req.OldPassword, req.NewPassword); err != nil {
+		je(w, err.Error(), 400); return
 	}
-	if err := h.DB.UpdateProfile(user.ID, req.DisplayName, req.OldPassword, req.NewPassword); err != nil {
-		jsonError(w, err.Error(), 400); return
-	}
-	jsonOK(w, map[string]string{"status": "ok"})
+	j(w, map[string]string{"status": "ok"})
 }
 
+// Articles
 func (h *Handler) GetArticles(w http.ResponseWriter, r *http.Request) {
-	articles, err := h.DB.GetArticles()
-	if err != nil { jsonError(w, "Ошибка базы данных", 500); return }
-	if articles == nil { articles = []models.Article{} }
-	jsonOK(w, articles)
+	arts, err := h.DB.GetArticles()
+	if err != nil { je(w, "Ошибка БД", 500); return }
+	if arts == nil { arts = []models.Article{} }
+	j(w, arts)
 }
 
 func (h *Handler) GetArticleContent(w http.ResponseWriter, r *http.Request) {
 	file := strings.TrimPrefix(r.URL.Path, "/api/articles/")
 	file = strings.TrimSuffix(file, "/content")
 	content, err := h.DB.GetArticleContent(file)
-	if err != nil { jsonError(w, "Статья не найдена", 404); return }
-	jsonOK(w, map[string]string{"content": content})
+	if err != nil { je(w, "Не найдена", 404); return }
+	j(w, map[string]string{"content": content})
 }
 
-// POST /api/favorites/toggle — toggle by file name
+// Search — полнотекстовый поиск
+func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	if q == "" { je(w, "Пустой запрос", 400); return }
+	arts, err := h.DB.SearchArticles(q)
+	if err != nil { je(w, "Ошибка поиска", 500); return }
+	if arts == nil { arts = []models.Article{} }
+	j(w, arts)
+}
+
+// Favorites
 func (h *Handler) ToggleFavorite(w http.ResponseWriter, r *http.Request) {
-	user := h.getUserFromToken(r)
-	if user == nil { jsonError(w, "Необходима авторизация", 401); return }
-
-	var req struct {
-		File string `json:"file"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "Некорректный запрос", 400); return
-	}
-
-	isFav, err := h.DB.ToggleFavoriteByFile(user.ID, req.File)
-	if err != nil { jsonError(w, err.Error(), 400); return }
-	jsonOK(w, map[string]interface{}{"is_favorite": isFav})
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	var req struct{ File string `json:"file"` }
+	if json.NewDecoder(r.Body).Decode(&req) != nil { je(w, "Ошибка", 400); return }
+	isFav, err := h.DB.ToggleFavoriteByFile(u.ID, req.File)
+	if err != nil { je(w, err.Error(), 400); return }
+	j(w, map[string]interface{}{"is_favorite": isFav})
 }
 
-// GET /api/favorites/check/{file} — check if article is in favorites
 func (h *Handler) CheckFavorite(w http.ResponseWriter, r *http.Request) {
-	user := h.getUserFromToken(r)
-	if user == nil { jsonError(w, "Необходима авторизация", 401); return }
-
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
 	file := strings.TrimPrefix(r.URL.Path, "/api/favorites/check/")
-	isFav := h.DB.IsFavoriteByFile(user.ID, file)
-	jsonOK(w, map[string]bool{"is_favorite": isFav})
+	j(w, map[string]bool{"is_favorite": h.DB.IsFavoriteByFile(u.ID, file)})
 }
 
-// GET /api/favorites
 func (h *Handler) GetFavorites(w http.ResponseWriter, r *http.Request) {
-	user := h.getUserFromToken(r)
-	if user == nil { jsonError(w, "Необходима авторизация", 401); return }
-	favs, err := h.DB.GetFavorites(user.ID)
-	if err != nil { jsonError(w, "Ошибка базы данных", 500); return }
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	favs, _ := h.DB.GetFavorites(u.ID)
 	if favs == nil { favs = []models.Article{} }
-	jsonOK(w, favs)
+	j(w, favs)
 }
 
-// POST /api/sync
+// Progress — прогресс чтения
+func (h *Handler) MarkRead(w http.ResponseWriter, r *http.Request) {
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	var req struct{ File string `json:"file"` }
+	if json.NewDecoder(r.Body).Decode(&req) != nil { je(w, "Ошибка", 400); return }
+	isRead, _ := h.DB.ToggleRead(u.ID, req.File)
+	j(w, map[string]interface{}{"is_read": isRead})
+}
+
+func (h *Handler) CheckRead(w http.ResponseWriter, r *http.Request) {
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	file := strings.TrimPrefix(r.URL.Path, "/api/progress/check/")
+	j(w, map[string]bool{"is_read": h.DB.IsRead(u.ID, file)})
+}
+
+func (h *Handler) GetProgress(w http.ResponseWriter, r *http.Request) {
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	p, err := h.DB.GetProgress(u.ID)
+	if err != nil { je(w, "Ошибка", 500); return }
+	j(w, p)
+}
+
+// Notes — заметки
+func (h *Handler) SaveNote(w http.ResponseWriter, r *http.Request) {
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	var req models.NoteRequest
+	if json.NewDecoder(r.Body).Decode(&req) != nil { je(w, "Ошибка", 400); return }
+	h.DB.SaveNote(u.ID, req.File, req.Text)
+	j(w, map[string]string{"status": "ok"})
+}
+
+func (h *Handler) GetNote(w http.ResponseWriter, r *http.Request) {
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	file := strings.TrimPrefix(r.URL.Path, "/api/notes/")
+	j(w, map[string]string{"text": h.DB.GetNote(u.ID, file)})
+}
+
+func (h *Handler) GetAllNotes(w http.ResponseWriter, r *http.Request) {
+	u := h.user(r); if u == nil { je(w, "Авторизуйтесь", 401); return }
+	notes, _ := h.DB.GetAllNotes(u.ID)
+	if notes == nil { notes = []models.Note{} }
+	j(w, notes)
+}
+
+// Stats — статистика
+func (h *Handler) GetStats(w http.ResponseWriter, r *http.Request) {
+	s, _ := h.DB.GetStats()
+	j(w, s)
+}
+
 func (h *Handler) Sync(w http.ResponseWriter, r *http.Request) {
-	jsonOK(w, map[string]string{"status": "ok", "message": "Синхронизация запущена"})
+	j(w, map[string]string{"status": "ok"})
 }

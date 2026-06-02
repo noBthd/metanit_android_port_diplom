@@ -54,11 +54,25 @@ func main() {
 	// Articles
 	r.HandleFunc("/api/articles", h.GetArticles).Methods("GET")
 	r.HandleFunc("/api/articles/{file}/content", h.GetArticleContent).Methods("GET")
+	r.HandleFunc("/api/search", h.Search).Methods("GET")
 
 	// Favorites
 	r.HandleFunc("/api/favorites", h.GetFavorites).Methods("GET")
 	r.HandleFunc("/api/favorites/toggle", h.ToggleFavorite).Methods("POST")
 	r.HandleFunc("/api/favorites/check/{file}", h.CheckFavorite).Methods("GET")
+
+	// Progress
+	r.HandleFunc("/api/progress", h.GetProgress).Methods("GET")
+	r.HandleFunc("/api/progress/read", h.MarkRead).Methods("POST")
+	r.HandleFunc("/api/progress/check/{file}", h.CheckRead).Methods("GET")
+
+	// Notes
+	r.HandleFunc("/api/notes", h.GetAllNotes).Methods("GET")
+	r.HandleFunc("/api/notes", h.SaveNote).Methods("POST")
+	r.HandleFunc("/api/notes/{file}", h.GetNote).Methods("GET")
+
+	// Stats
+	r.HandleFunc("/api/stats", h.GetStats).Methods("GET")
 
 	// Sync
 	r.HandleFunc("/api/sync", h.Sync).Methods("POST")

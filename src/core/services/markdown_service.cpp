@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QRegularExpression>
 #include <QVariantMap>
+#include <QSettings>
 
 MarkdownService::MarkdownService(QObject *parent)
     : QObject(parent)
@@ -17,9 +18,18 @@ MarkdownService::MarkdownService(QObject *parent)
 /// На iOS файлов нет — используется только кэш (контент из API).
 QString MarkdownService::loadMarkdown(const QString &fileName)
 {
-    // Проверяем кэш (контент загруженный из API)
+    // Проверяем in-memory кэш
     if (m_contentCache.contains(fileName)) {
         return m_contentCache[fileName];
+    }
+
+    // Проверяем persistent кэш (QSettings — сохраняется на диске)
+    QSettings settings;
+    QString key = "cache/article/" + fileName;
+    if (settings.contains(key)) {
+        QString content = settings.value(key).toString();
+        m_contentCache[fileName] = content; // загружаем в in-memory
+        return content;
     }
 
     // Пробуем локальные файлы (десктоп)
@@ -33,16 +43,22 @@ QString MarkdownService::loadMarkdown(const QString &fileName)
         QFile file(path);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&file);
-            return in.readAll();
+            QString content = in.readAll();
+            m_contentCache[fileName] = content;
+            return content;
         }
     }
     return "# Загрузка...\n\nСтатья загружается с сервера.";
 }
 
-/// Сохраняет контент статьи в in-memory кэш.
+/// Сохраняет контент в in-memory кэш И на диск (QSettings).
+/// При следующем запуске без интернета — статья будет доступна.
 void MarkdownService::cacheContent(const QString &fileName, const QString &content)
 {
     m_contentCache[fileName] = content;
+    // Persistent cache на диск
+    QSettings settings;
+    settings.setValue("cache/article/" + fileName, content);
 }
 
 QString MarkdownService::escapeHtml(const QString &text)

@@ -26,6 +26,61 @@ ApplicationWindow {
 
     color: bgColor
 
+    /// Подсветка синтаксиса C++ — построчная, без конфликтов regex
+    function highlightCpp(code) {
+        var isDark = networkService.darkTheme
+        var kwColor = isDark ? "#569cd6" : "#0000ff"
+        var strColor = isDark ? "#ce9178" : "#a31515"
+        var cmtColor = isDark ? "#6a9955" : "#008000"
+        var numColor = isDark ? "#b5cea8" : "#098658"
+        var typeColor = isDark ? "#4ec9b0" : "#267f99"
+        var preColor = isDark ? "#c586c0" : "#af00db"
+        var defColor = isDark ? "#d4d4d4" : "#333333"
+
+        var kw = ["if","else","for","while","do","switch","case","break","continue","return",
+                  "class","struct","enum","public","private","protected","virtual","override",
+                  "const","static","namespace","using","typedef","template","typename",
+                  "new","delete","try","catch","throw","nullptr","true","false","this",
+                  "operator","friend","inline","extern","volatile","mutable","constexpr",
+                  "noexcept","sizeof","decltype"]
+        var types = ["int","float","double","char","bool","void","string","auto","size_t",
+                     "unsigned","long","short","wchar_t","std","cout","cin","endl","vector",
+                     "map","set","pair","array"]
+
+        var lines = code.split("\n")
+        var result = []
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i]
+            line = line.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+            var trimmed = line.replace(/^\s+/, "")
+
+            if (trimmed.indexOf("//") === 0) {
+                result.push('<span style="color:'+cmtColor+'">'+line+'</span>')
+                continue
+            }
+            if (trimmed.indexOf("#") === 0) {
+                result.push('<span style="color:'+preColor+'">'+line+'</span>')
+                continue
+            }
+
+            line = line.replace(/"([^\"]*)"/g, '<span style="color:'+strColor+'">\$1</span>')
+            line = line.replace(/\b(\d+)\b/g, '<span style="color:'+numColor+'">$1</span>')
+
+            var words = types.concat(kw)
+            for (var w = 0; w < words.length; w++) {
+                var word = words[w]
+                var re = new RegExp("\\b(" + word + ")\\b", "g")
+                var col = (w < types.length) ? typeColor : kwColor
+                line = line.replace(re, '<span style="color:'+col+'">$1</span>')
+            }
+
+            result.push(line)
+        }
+
+        return '<pre style="color:'+defColor+';margin:0;white-space:pre-wrap">' + result.join("\n") + '</pre>'
+    }
+
     // iOS-style tab bar — учитываем safe area снизу
     footer: Rectangle {
         width: parent.width
@@ -97,6 +152,12 @@ ApplicationWindow {
                 id: mainStack
                 anchors.fill: parent
                 initialItem: chaptersPage
+
+                // Плавные iOS-подобные анимации переходов
+                pushEnter: Transition { NumberAnimation { property: "x"; from: mainStack.width; to: 0; duration: 300; easing.type: Easing.OutCubic } }
+                pushExit: Transition { NumberAnimation { property: "x"; from: 0; to: -mainStack.width/3; duration: 300; easing.type: Easing.OutCubic } }
+                popEnter: Transition { NumberAnimation { property: "x"; from: -mainStack.width/3; to: 0; duration: 300; easing.type: Easing.OutCubic } }
+                popExit: Transition { NumberAnimation { property: "x"; from: 0; to: mainStack.width; duration: 300; easing.type: Easing.OutCubic } }
             }
         }
 
@@ -105,6 +166,8 @@ ApplicationWindow {
             StackView {
                 id: searchStack
                 anchors.fill: parent
+                pushEnter: Transition { NumberAnimation { property: "x"; from: searchStack.width; to: 0; duration: 300; easing.type: Easing.OutCubic } }
+                popExit: Transition { NumberAnimation { property: "x"; from: 0; to: searchStack.width; duration: 300; easing.type: Easing.OutCubic } }
                 initialItem: searchPage
             }
         }
@@ -113,10 +176,13 @@ ApplicationWindow {
         Item {
             id: favoritesTab
             property var favList: []
+            property var notesList: []
 
             function refreshFavorites() {
-                if (networkService.isLoggedIn)
+                if (networkService.isLoggedIn) {
                     networkService.fetchFavorites()
+                    networkService.fetchAllNotes()
+                }
             }
 
             Connections {
@@ -126,6 +192,12 @@ ApplicationWindow {
                     for (var i = 0; i < favorites.length; i++)
                         items.push(favorites[i])
                     favoritesTab.favList = items
+                }
+                function onAllNotesLoaded(notes) {
+                    var items = []
+                    for (var i = 0; i < notes.length; i++)
+                        items.push(notes[i])
+                    favoritesTab.notesList = items
                 }
                 function onFavoriteToggled(file, isFavorite) { favoritesTab.refreshFavorites() }
                 function onAuthChanged() { favoritesTab.refreshFavorites() }
@@ -238,15 +310,75 @@ ApplicationWindow {
                             }
                         }
                     }
+
+                    // Секция "Статьи с заметками"
+                    Text {
+                        text: "📝 Заметки"
+                        color: textColor
+                        font.pixelSize: 22
+                        font.weight: Font.Bold
+                        leftPadding: 20
+                        topPadding: 20
+                        bottomPadding: 8
+                        visible: favoritesTab.notesList.length > 0
+                    }
+
+                    Repeater {
+                        model: favoritesTab.notesList
+
+                        delegate: Rectangle {
+                            width: parent.width - 32
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            height: noteCol.height + 16
+                            radius: 10
+                            color: cardColor
+                            border.color: separatorColor
+                            border.width: 0.5
+
+                            Column {
+                                id: noteCol
+                                width: parent.width - 24
+                                anchors.centerIn: parent
+                                spacing: 4
+
+                                Text {
+                                    text: modelData.file
+                                    color: textSecondary
+                                    font.pixelSize: 13
+                                }
+                                Text {
+                                    text: modelData.text
+                                    color: textColor
+                                    font.pixelSize: 15
+                                    width: parent.width
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 3
+                                    elide: Text.ElideRight
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    mainStack.pop(null)
+                                    tabStack.currentIndex = 0
+                                    mainStack.push(articleViewPage, {
+                                        articleTitle: modelData.file,
+                                        articleFile: modelData.file
+                                    })
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-
-        // ==================== Tab 3: Settings ====================
         Item {
             StackView {
                 id: settingsStack
                 anchors.fill: parent
+                pushEnter: Transition { NumberAnimation { property: "x"; from: settingsStack.width; to: 0; duration: 300; easing.type: Easing.OutCubic } }
+                popExit: Transition { NumberAnimation { property: "x"; from: 0; to: settingsStack.width; duration: 300; easing.type: Easing.OutCubic } }
                 initialItem: settingsPage
             }
         }
@@ -483,28 +615,6 @@ ApplicationWindow {
                                     anchors.right: parent.right; height: 0.5; color: separatorColor
                                 }
                             }
-
-                            // Заглушка: Кэш
-                            Item {
-                                width: parent.width
-                                height: 48
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 16
-                                    anchors.rightMargin: 16
-                                    Text {
-                                        text: "Очистить кэш"
-                                        color: textColor
-                                        font.pixelSize: 17
-                                        Layout.fillWidth: true
-                                    }
-                                    Text {
-                                        text: "›"
-                                        color: "#48484a"
-                                        font.pixelSize: 22
-                                    }
-                                }
-                            }
                         }
                     }
 
@@ -718,19 +828,34 @@ ApplicationWindow {
                                 width: parent.width
                                 spacing: 10
 
-                                Repeater {
-                                    model: [
-                                        { lbl: "Платформа", val: "iOS (Qt 6)" },
-                                        { lbl: "Backend",   val: "Go (crawler + parser)" },
-                                        { lbl: "Статей",    val: "150" },
-                                        { lbl: "Глав",      val: "17" }
-                                    ]
-                                    delegate: RowLayout {
-                                        width: parent.width
-                                        spacing: 8
-                                        Text { text: modelData.lbl; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.6 }
-                                        Item { Layout.fillWidth: true }
-                                        Text { text: modelData.val; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.4 }
+                                RowLayout {
+                                    width: parent.width
+                                    Text { text: "Платформа"; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.6 }
+                                    Item { Layout.fillWidth: true }
+                                    Text { text: "iOS (Qt 6)"; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.4 }
+                                }
+                                RowLayout {
+                                    width: parent.width
+                                    Text { text: "Backend"; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.6 }
+                                    Item { Layout.fillWidth: true }
+                                    Text { text: "Go + PostgreSQL"; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.4 }
+                                }
+                                RowLayout {
+                                    width: parent.width
+                                    Text { text: "Статей"; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.6 }
+                                    Item { Layout.fillWidth: true }
+                                    Text {
+                                        color: "#ebebf5"; font.pixelSize: 15; opacity: 0.4
+                                        text: { var r = articlesModel.revision; return articlesModel.rowCount() }
+                                    }
+                                }
+                                RowLayout {
+                                    width: parent.width
+                                    Text { text: "Глав"; color: "#ebebf5"; font.pixelSize: 15; opacity: 0.6 }
+                                    Item { Layout.fillWidth: true }
+                                    Text {
+                                        color: "#ebebf5"; font.pixelSize: 15; opacity: 0.4
+                                        text: { var r = articlesModel.revision; return articlesModel.getChapters().length }
                                     }
                                 }
                             }
@@ -1036,6 +1161,73 @@ ApplicationWindow {
                         bottomPadding: 20
                     }
 
+                    // Сообщение если нет статей
+                    Column {
+                        width: parent.width - 64
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 12
+                        visible: totalArticles === 0
+                        topPadding: 40
+
+                        Text { text: "📡"; font.pixelSize: 48; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Нет подключения к серверу"; color: textColor; font.pixelSize: 18; font.weight: Font.Medium; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Проверьте адрес сервера в настройках\nи подключение к сети"; color: textSecondary; font.pixelSize: 14; horizontalAlignment: Text.AlignHCenter; anchors.horizontalCenter: parent.horizontalCenter }
+                        Rectangle {
+                            width: 160; height: 40; radius: 10; color: "#0a84ff"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            Text { anchors.centerIn: parent; text: "Повторить"; color: "#ffffff"; font.pixelSize: 15 }
+                            MouseArea { anchors.fill: parent; onClicked: networkService.fetchArticles() }
+                        }
+                    }
+
+                    // Карточка прогресса (если авторизован)
+                    Rectangle {
+                        id: progressCard
+                        width: parent.width - 32
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: networkService.isLoggedIn ? progressCol.height + 20 : 0
+                        radius: 12; color: cardColor
+                        visible: networkService.isLoggedIn
+                        clip: true
+
+                        property int pct: 0
+
+                        Connections {
+                            target: networkService
+                            function onProgressLoaded(progress) { progressCard.pct = progress.percent || 0 }
+                            function onAuthChanged() {
+                                if (networkService.isLoggedIn) networkService.fetchProgress()
+                                else progressCard.pct = 0
+                            }
+                            function onReadChecked() { networkService.fetchProgress() }
+                        }
+
+                        Component.onCompleted: {
+                            if (networkService.isLoggedIn) networkService.fetchProgress()
+                        }
+
+                        Column {
+                            id: progressCol
+                            width: parent.width - 24; anchors.centerIn: parent; spacing: 8
+                            Row {
+                                spacing: 8
+                                Text { text: "📊 Прогресс"; color: textColor; font.pixelSize: 15; font.weight: Font.Medium }
+                                Text { text: progressCard.pct + "%"; color: "#0a84ff"; font.pixelSize: 15; font.weight: Font.Bold }
+                            }
+                            Rectangle {
+                                width: parent.width; height: 6; radius: 3; color: separatorColor
+                                Rectangle {
+                                    width: Math.max(0, parent.width * progressCard.pct / 100)
+                                    height: parent.height; radius: 3; color: "#30d158"
+                                    Behavior on width { NumberAnimation { duration: 500; easing.type: Easing.OutCubic } }
+                                }
+                            }
+                        }
+                    }
+
+                    Item { height: 8; width: 1 }
+
+
                     Rectangle {
                         width: parent.width - 32
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -1251,6 +1443,7 @@ ApplicationWindow {
             property string articleFile: ""
             property var articleBlocks: []
             property string rawMd: ""
+            property string noteText: ""
 
             Component.onCompleted: {
                 rawMd = markdownService.loadMarkdown(articleFile)
@@ -1259,6 +1452,7 @@ ApplicationWindow {
                 } else {
                     articleBlocks = markdownService.parseBlocks(rawMd, networkService.darkTheme)
                 }
+                if(networkService.isLoggedIn){networkService.fetchNote(articleFile);networkService.checkRead(articleFile)}
             }
 
             Connections {
@@ -1274,6 +1468,7 @@ ApplicationWindow {
                     if (rawMd.length > 0)
                         articleBlocks = markdownService.parseBlocks(rawMd, networkService.darkTheme)
                 }
+                function onNoteLoaded(file, text) { if(file===articleFile) noteText=text }
             }
 
             Rectangle {
@@ -1294,14 +1489,32 @@ ApplicationWindow {
                     Text { text: "Назад"; color: "#0a84ff"; font.pixelSize: 17; anchors.verticalCenter: parent.verticalCenter }
                 }
 
-                // Favorite button
+                // Кнопка "Поделиться"
+                Text {
+                    id: shareBtn
+                    anchors.right: favBtn.visible ? favBtn.left : parent.right
+                    anchors.rightMargin: favBtn.visible ? 16 : 16
+                    anchors.bottom: parent.bottom; anchors.bottomMargin: 8
+                    text: "📤"
+                    font.pixelSize: 20
+
+                    MouseArea {
+                        anchors.fill: parent; anchors.margins: -8
+                        onClicked: {
+                            var md = markdownService.loadMarkdown(articleFile)
+                            Qt.openUrlExternally("mailto:?subject=" + encodeURIComponent(articleTitle) + "&body=" + encodeURIComponent(md.substring(0, 500) + "\n\n..."))
+                        }
+                    }
+                }
+
+                // Кнопка "Избранное"
                 Text {
                     id: favBtn
                     property bool isFav: false
                     anchors.right: parent.right; anchors.rightMargin: 16
                     anchors.bottom: parent.bottom; anchors.bottomMargin: 8
                     text: isFav ? "★" : "☆"
-                    color: isFav ? "#ffd60a" : "#8e8e93"
+                    color: isFav ? "#ffd60a" : textSecondary
                     font.pixelSize: 24
                     visible: networkService.isLoggedIn
 
@@ -1313,10 +1526,9 @@ ApplicationWindow {
                         function onFavoriteChecked(file, isFavorite) {
                             if (file === articleFile) favBtn.isFav = isFavorite
                         }
-                        // Сбрасываем звёздочку при выходе из аккаунта
                         function onAuthChanged() {
-                            if (!networkService.isLoggedIn) favBtn.isFav = false
-                            else networkService.checkFavorite(articleFile)
+                            if (!networkService.isLoggedIn) { favBtn.isFav = false }
+                            else { networkService.checkFavorite(articleFile); networkService.checkRead(articleFile) }
                         }
                     }
 
@@ -1339,7 +1551,7 @@ ApplicationWindow {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                contentHeight: blocksColumn.height + navButtons.height + 60
+                contentHeight: blocksColumn.height + (notesBlock.visible ? notesBlock.height + 20 : 0) + (readBlock.visible ? 70 : 0) + navButtons.height + 80
                 clip: true
 
                 Column {
@@ -1362,33 +1574,111 @@ ApplicationWindow {
                     }
                 }
 
-                // Кнопки навигации: предыдущая / следующая статья
-                Row {
-                    id: navButtons
+                // Заметки к статье
+                Rectangle {
+                    id: notesBlock
                     anchors.top: blocksColumn.bottom
-                    anchors.topMargin: 24
+                    anchors.topMargin: 20
+                    anchors.left: parent.left; anchors.leftMargin: 16
+                    anchors.right: parent.right; anchors.rightMargin: 16
+                    height: notesCol.height + 24
+                    radius: 10; color: cardColor; border.color: separatorColor; border.width: 0.5
+                    visible: networkService.isLoggedIn
+
+                    Column {
+                        id: notesCol
+                        width: parent.width - 24; anchors.centerIn: parent; spacing: 8
+
+                        Text { text: "📝 Заметка"; color: textSecondary; font.pixelSize: 13 }
+
+                        TextEdit {
+                            id: noteInput; width: parent.width
+                            color: textColor; font.pixelSize: 14
+                            wrapMode: TextEdit.Wrap
+                            text: noteText
+                            Text { text: "Добавить заметку..."; color: textSecondary; font.pixelSize: 14
+                                   visible: !noteInput.text && !noteInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
+                        }
+
+                        Rectangle {
+                            width: 100; height: 28; radius: 6; color: "#0a84ff"
+                            visible: noteInput.text !== noteText
+                            Text { anchors.centerIn: parent; text: "Сохранить"; color: "#ffffff"; font.pixelSize: 12 }
+                            MouseArea { anchors.fill: parent; onClicked: { networkService.saveNote(articleFile, noteInput.text); noteText = noteInput.text } }
+                        }
+                    }
+                }
+                // Кнопка "Отметить как прочитанное"
+                Rectangle {
+                    id: readBlock
+                    anchors.top: notesBlock.visible ? notesBlock.bottom : blocksColumn.bottom
+                    anchors.topMargin: 16
+                    anchors.left: parent.left; anchors.leftMargin: 16
+                    anchors.right: parent.right; anchors.rightMargin: 16
+                    height: 48; radius: 10
+                    color: readBlock.isRead ? "#1a3a1a" : cardColor
+                    border.color: readBlock.isRead ? "#30d158" : separatorColor
+                    border.width: 1
+                    visible: networkService.isLoggedIn
+
+                    property bool isRead: false
+
+                    Connections {
+                        target: networkService
+                        function onReadChecked(file, read) { if (file === articleFile) readBlock.isRead = read }
+                    }
+
+                    Row {
+                        anchors.centerIn: parent; spacing: 8
+                        Text { text: readBlock.isRead ? "✅" : "✕"; font.pixelSize: 18; color: readBlock.isRead ? "#30d158" : textSecondary; anchors.verticalCenter: parent.verticalCenter }
+                        Text {
+                            text: readBlock.isRead ? "Прочитано (нажмите чтобы отменить)" : "Отметить как прочитанное"
+                            color: readBlock.isRead ? "#30d158" : textColor
+                            font.pixelSize: 15; anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: networkService.markRead(articleFile)
+                    }
+                }
+
+                // Кнопки навигации
+                RowLayout {
+                    id: navButtons
+                    anchors.top: readBlock.visible ? readBlock.bottom : (notesBlock.visible ? notesBlock.bottom : blocksColumn.bottom)
+                    anchors.topMargin: 16
                     anchors.left: parent.left; anchors.leftMargin: 16
                     anchors.right: parent.right; anchors.rightMargin: 16
                     spacing: 12
 
+                    // Спейсер слева (если "Предыдущая" не видна, двигает "Следующая" вправо)
+                    Item {
+                        Layout.fillWidth: true
+                        visible: {
+                            var ch = parseInt(articleFile.split(".")[0])
+                            var all = articlesModel.getArticlesForChapter(ch)
+                            for (var i = 0; i < all.length; i++)
+                                if (all[i].file === articleFile) return i === 0
+                            return true
+                        }
+                    }
+
                     // Предыдущая статья
                     Rectangle {
-                        width: (parent.width - 12) / 2
+                        Layout.preferredWidth: (navButtons.width - 12) / 2
                         height: 44; radius: 10
                         color: cardColor
                         border.color: separatorColor; border.width: 0.5
                         visible: {
-                            var all = articlesModel.getArticlesForChapter(articleFile.split(".")[0])
+                            var ch = parseInt(articleFile.split(".")[0])
+                            var all = articlesModel.getArticlesForChapter(ch)
                             for (var i = 0; i < all.length; i++)
                                 if (all[i].file === articleFile) return i > 0
                             return false
                         }
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: "‹ Предыдущая"
-                            color: "#0a84ff"; font.pixelSize: 15
-                        }
+                        Text { anchors.centerIn: parent; text: "‹ Предыдущая"; color: "#0a84ff"; font.pixelSize: 15 }
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
@@ -1396,10 +1686,7 @@ ApplicationWindow {
                                 var all = articlesModel.getArticlesForChapter(ch)
                                 for (var i = 0; i < all.length; i++) {
                                     if (all[i].file === articleFile && i > 0) {
-                                        mainStack.replace(articleViewPage, {
-                                            articleTitle: all[i-1].title,
-                                            articleFile: all[i-1].file
-                                        })
+                                        mainStack.replace(articleViewPage, { articleTitle: all[i-1].title, articleFile: all[i-1].file })
                                         break
                                     }
                                 }
@@ -1409,7 +1696,7 @@ ApplicationWindow {
 
                     // Следующая статья
                     Rectangle {
-                        width: (parent.width - 12) / 2
+                        Layout.preferredWidth: (navButtons.width - 12) / 2
                         height: 44; radius: 10
                         color: "#0a84ff"
                         visible: {
@@ -1420,11 +1707,7 @@ ApplicationWindow {
                             return false
                         }
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Следующая ›"
-                            color: "#ffffff"; font.pixelSize: 15
-                        }
+                        Text { anchors.centerIn: parent; text: "Следующая ›"; color: "#ffffff"; font.pixelSize: 15 }
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
@@ -1432,10 +1715,7 @@ ApplicationWindow {
                                 var all = articlesModel.getArticlesForChapter(ch)
                                 for (var i = 0; i < all.length; i++) {
                                     if (all[i].file === articleFile && i < all.length - 1) {
-                                        mainStack.replace(articleViewPage, {
-                                            articleTitle: all[i+1].title,
-                                            articleFile: all[i+1].file
-                                        })
+                                        mainStack.replace(articleViewPage, { articleTitle: all[i+1].title, articleFile: all[i+1].file })
                                         break
                                     }
                                 }
@@ -1763,7 +2043,7 @@ ApplicationWindow {
                     }
                 }
 
-                // Code content — scrollable horizontally
+                // Code content — с подсветкой синтаксиса C++
                 Flickable {
                     width: parent.width
                     height: codeText.height + 24
@@ -1775,17 +2055,14 @@ ApplicationWindow {
                         id: codeText
                         x: 14
                         y: 12
-                        text: blockContent
-                        color: codeTextColor
+                        textFormat: Text.RichText
+                        text: highlightCpp(blockContent)
                         font.family: "Menlo"
                         font.pixelSize: 13
                         lineHeight: 1.5
 
-                        // Fallback font
                         Component.onCompleted: {
-                            if (font.family !== "Menlo") {
-                                font.family = "Courier New"
-                            }
+                            if (font.family !== "Menlo") font.family = "Courier New"
                         }
                     }
                 }
