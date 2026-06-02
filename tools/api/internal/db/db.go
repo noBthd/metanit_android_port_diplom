@@ -291,7 +291,7 @@ func (d *DB) GetNote(userID int, file string) string {
 }
 
 func (d *DB) GetAllNotes(userID int) ([]models.Note, error) {
-	rows, err := d.conn.Query("SELECT id, file, text, created_at, updated_at FROM notes WHERE user_id=$1 ORDER BY updated_at DESC", userID)
+	rows, err := d.conn.Query("SELECT id, file, text, created_at, updated_at FROM notes WHERE user_id=$1 AND text != '' ORDER BY updated_at DESC", userID)
 	if err != nil { return nil, err }
 	defer rows.Close()
 	var notes []models.Note

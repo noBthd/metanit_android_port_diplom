@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Основной градиент фона -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="50%" stop-color="#0d0d1a"/>
+      <stop offset="100%" stop-color="#161622"/>
+    </linearGradient>
+    
+    <!-- Градиент для буквы М -->
+    <linearGradient id="letterGrad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#64b5f6"/>
+      <stop offset="40%" stop-color="#0a84ff"/>
+      <stop offset="100%" stop-color="#0055d4"/>
+    </linearGradient>
+    
+    <!-- Свечение -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    
+    <!-- Тень -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a84ff" flood-opacity="0.3"/>
+    </filter>
+
+    <!-- Маска для iOS-скругления -->
+    <clipPath id="iosClip">
+      <rect x="0" y="0" width="1024" height="1024" rx="230" ry="230"/>
+    </clipPath>
+  </defs>
+  
+  <!-- Фон с iOS-скруглением -->
+  <g clip-path="url(#iosClip)">
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    
+    <!-- Тонкая сетка на фоне (стиль кода) -->
+    <g opacity="0.04" stroke="#ffffff" stroke-width="1">
+      <line x1="0" y1="200" x2="1024" y2="200"/>
+      <line x1="0" y1="400" x2="1024" y2="400"/>
+      <line x1="0" y1="600" x2="1024" y2="600"/>
+      <line x1="0" y1="800" x2="1024" y2="800"/>
+      <line x1="200" y1="0" x2="200" y2="1024"/>
+      <line x1="400" y1="0" x2="400" y2="1024"/>
+      <line x1="600" y1="0" x2="600" y2="1024"/>
+      <line x1="800" y1="0" x2="800" y2="1024"/>
+    </g>
+    
+    <!-- Декоративные элементы — фрагменты кода на фоне -->
+    <g opacity="0.06" fill="#0a84ff" font-family="Menlo, monospace" font-size="28">
+      <text x="40" y="120">#include &lt;iostream&gt;</text>
+      <text x="60" y="160">int main() {</text>
+      <text x="680" y="880">return 0;</text>
+      <text x="700" y="920">}</text>
+      <text x="40" y="920">std::cout</text>
+      <text x="700" y="120">class</text>
+      <text x="720" y="160">struct</text>
+    </g>
+    
+    <!-- Большое свечение за буквой -->
+    <circle cx="512" cy="480" r="260" fill="#0a84ff" opacity="0.08"/>
+    <circle cx="512" cy="480" r="180" fill="#0a84ff" opacity="0.05"/>
+    
+    <!-- Буква М — основная -->
+    <g filter="url(#shadow)">
+      <text 
+        x="512" y="580" 
+        text-anchor="middle" 
+        dominant-baseline="central"
+        font-family="SF Pro Display, -apple-system, Helvetica Neue, Arial, sans-serif" 
+        font-size="520" 
+        font-weight="800"
+        fill="url(#letterGrad)"
+        letter-spacing="-15"
+      >М</text>
+    </g>
+    
+    <!-- Тонкая линия-акцент снизу -->
+    <rect x="340" y="770" width="344" height="4" rx="2" fill="#0a84ff" opacity="0.6"/>
+    
+    <!-- Маленький текст "C++" -->
+    <text 
+      x="512" y="840" 
+      text-anchor="middle"
+      font-family="Menlo, monospace" 
+      font-size="48" 
+      font-weight="600"
+      fill="#64b5f6"
+      opacity="0.5"
+    >C++</text>
+    
+    <!-- Рамка по краям -->
+    <rect x="6" y="6" width="1012" height="1012" rx="227" ry="227" 
+          fill="none" stroke="#0a84ff" stroke-width="2" opacity="0.15"/>
+  </g>
+</svg>

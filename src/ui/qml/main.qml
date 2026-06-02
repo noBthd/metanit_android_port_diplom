@@ -64,7 +64,7 @@ ApplicationWindow {
                 continue
             }
 
-            line = line.replace(/"([^\"]*)"/g, '<span style="color:'+strColor+'">\$1</span>')
+            line = line.replace(/"([^\"]*)"/g, '<span style="color:'+strColor+'">$1</span>')
             line = line.replace(/\b(\d+)\b/g, '<span style="color:'+numColor+'">$1</span>')
 
             var words = types.concat(kw)
@@ -79,7 +79,7 @@ ApplicationWindow {
         }
 
         return '<pre style="color:'+defColor+';margin:0;white-space:pre-wrap">' + result.join("\n") + '</pre>'
-    }
+    }    
 
     // iOS-style tab bar — учитываем safe area снизу
     footer: Rectangle {
@@ -196,7 +196,8 @@ ApplicationWindow {
                 function onAllNotesLoaded(notes) {
                     var items = []
                     for (var i = 0; i < notes.length; i++)
-                        items.push(notes[i])
+                        if (notes[i].text && notes[i].text.length > 0)
+                            items.push(notes[i])
                     favoritesTab.notesList = items
                 }
                 function onFavoriteToggled(file, isFavorite) { favoritesTab.refreshFavorites() }
@@ -227,145 +228,148 @@ ApplicationWindow {
                     }
                 }
 
-                // Logged in — favorites list
-                Column {
+                // Logged in — favorites + notes
+                Flickable {
                     anchors.fill: parent
-                    topPadding: 50
+                    contentHeight: favCol.height + 40
+                    clip: true
                     visible: networkService.isLoggedIn
 
-                    Text {
-                        text: "Избранное"
-                        color: textColor
-                        font.pixelSize: 34
-                        font.weight: Font.Bold
-                        leftPadding: 20
-                        bottomPadding: 16
-                    }
-
-                    // Empty state
                     Column {
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        id: favCol
+                        width: parent.width
+                        topPadding: 50
                         spacing: 8
-                        visible: favoritesTab.favList.length === 0
-                        topPadding: 60
 
-                        Text { text: "☆"; font.pixelSize: 40; color: textSecondary; anchors.horizontalCenter: parent.horizontalCenter }
-                        Text { text: "Пока пусто"; color: textSecondary; font.pixelSize: 17; anchors.horizontalCenter: parent.horizontalCenter }
-                        Text { text: "Нажмите ☆ в статье, чтобы добавить"; color: textSecondary; font.pixelSize: 14; anchors.horizontalCenter: parent.horizontalCenter }
-                    }
+                        Text {
+                            text: "Избранное"
+                            color: textColor
+                            font.pixelSize: 34
+                            font.weight: Font.Bold
+                            leftPadding: 20
+                            bottomPadding: 8
+                        }
 
-                    // List of favorites
-                    ListView {
-                        width: parent.width - 32
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        height: parent.height - 120
-                        clip: true
-                        visible: favoritesTab.favList.length > 0
-                        model: favoritesTab.favList
+                        // Empty state
+                        Column {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 8
+                            visible: favoritesTab.favList.length === 0 && favoritesTab.notesList.length === 0
+                            topPadding: 40
 
-                        delegate: Rectangle {
-                            width: ListView.view.width
-                            height: Math.max(56, favTitle.implicitHeight + 30)
-                            color: "transparent"
+                            Text { text: "☆"; font.pixelSize: 40; color: textSecondary; anchors.horizontalCenter: parent.horizontalCenter }
+                            Text { text: "Пока пусто"; color: textSecondary; font.pixelSize: 17; anchors.horizontalCenter: parent.horizontalCenter }
+                            Text { text: "Нажмите ☆ в статье, чтобы добавить"; color: textSecondary; font.pixelSize: 14; anchors.horizontalCenter: parent.horizontalCenter }
+                        }
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 4; anchors.rightMargin: 4
-                                spacing: 8
+                        // Favorites list
+                        Repeater {
+                            model: favoritesTab.favList
 
-                                Column {
-                                    Layout.fillWidth: true; spacing: 2
-                                    Text {
-                                        id: favTitle
-                                        text: modelData.title
-                                        color: textColor; font.pixelSize: 17
-                                        width: parent.width; wrapMode: Text.WordWrap
+                            delegate: Rectangle {
+                                width: parent.width - 32
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                height: Math.max(56, favTitle.implicitHeight + 30)
+                                color: "transparent"
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 4; anchors.rightMargin: 4
+                                    spacing: 8
+
+                                    Column {
+                                        Layout.fillWidth: true; spacing: 2
+                                        Text {
+                                            id: favTitle
+                                            text: modelData.title
+                                            color: textColor; font.pixelSize: 17
+                                            width: parent.width; wrapMode: Text.WordWrap
+                                        }
+                                        Text {
+                                            text: "Глава " + modelData.chapter + " · " + modelData.chapterName
+                                            color: textSecondary; font.pixelSize: 13
+                                        }
                                     }
-                                    Text {
-                                        text: "Глава " + modelData.chapter + " · " + modelData.chapterName
-                                        color: textSecondary; font.pixelSize: 13
-                                    }
+
+                                    Text { text: "›"; color: "#48484a"; font.pixelSize: 22 }
                                 }
 
-                                Text { text: "›"; color: "#48484a"; font.pixelSize: 22 }
-                            }
+                                Rectangle {
+                                    anchors.bottom: parent.bottom
+                                    anchors.left: parent.left; anchors.right: parent.right
+                                    height: 0.5; color: separatorColor
+                                }
 
-                            Rectangle {
-                                anchors.bottom: parent.bottom
-                                anchors.left: parent.left; anchors.right: parent.right
-                                height: 0.5; color: separatorColor
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    // Сначала возвращаемся к корню, потом открываем статью
-                                    mainStack.pop(null)
-                                    tabStack.currentIndex = 0
-                                    mainStack.push(articleViewPage, {
-                                        articleTitle: modelData.title,
-                                        articleFile: modelData.file
-                                    })
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        mainStack.pop(null)
+                                        tabStack.currentIndex = 0
+                                        mainStack.push(articleViewPage, {
+                                            articleTitle: modelData.title,
+                                            articleFile: modelData.file
+                                        })
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // Секция "Статьи с заметками"
-                    Text {
-                        text: "📝 Заметки"
-                        color: textColor
-                        font.pixelSize: 22
-                        font.weight: Font.Bold
-                        leftPadding: 20
-                        topPadding: 20
-                        bottomPadding: 8
-                        visible: favoritesTab.notesList.length > 0
-                    }
+                        // Секция "Заметки"
+                        Text {
+                            text: "📝 Заметки"
+                            color: textColor
+                            font.pixelSize: 22
+                            font.weight: Font.Bold
+                            leftPadding: 20
+                            topPadding: 20
+                            bottomPadding: 8
+                            visible: favoritesTab.notesList.length > 0
+                        }
 
-                    Repeater {
-                        model: favoritesTab.notesList
+                        Repeater {
+                            model: favoritesTab.notesList
 
-                        delegate: Rectangle {
-                            width: parent.width - 32
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            height: noteCol.height + 16
-                            radius: 10
-                            color: cardColor
-                            border.color: separatorColor
-                            border.width: 0.5
+                            delegate: Rectangle {
+                                width: parent.width - 32
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                height: noteCol.height + 20
+                                radius: 10
+                                color: cardColor
+                                border.color: separatorColor
+                                border.width: 0.5
 
-                            Column {
-                                id: noteCol
-                                width: parent.width - 24
-                                anchors.centerIn: parent
-                                spacing: 4
+                                Column {
+                                    id: noteCol
+                                    width: parent.width - 24
+                                    anchors.centerIn: parent
+                                    spacing: 4
 
-                                Text {
-                                    text: modelData.file
-                                    color: textSecondary
-                                    font.pixelSize: 13
+                                    Text {
+                                        text: modelData.file
+                                        color: textSecondary
+                                        font.pixelSize: 13
+                                    }
+                                    Text {
+                                        text: modelData.text
+                                        color: textColor
+                                        font.pixelSize: 15
+                                        width: parent.width
+                                        wrapMode: Text.WordWrap
+                                        maximumLineCount: 3
+                                        elide: Text.ElideRight
+                                    }
                                 }
-                                Text {
-                                    text: modelData.text
-                                    color: textColor
-                                    font.pixelSize: 15
-                                    width: parent.width
-                                    wrapMode: Text.WordWrap
-                                    maximumLineCount: 3
-                                    elide: Text.ElideRight
-                                }
-                            }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    mainStack.pop(null)
-                                    tabStack.currentIndex = 0
-                                    mainStack.push(articleViewPage, {
-                                        articleTitle: modelData.file,
-                                        articleFile: modelData.file
-                                    })
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        mainStack.pop(null)
+                                        tabStack.currentIndex = 0
+                                        mainStack.push(articleViewPage, {
+                                            articleTitle: modelData.file,
+                                            articleFile: modelData.file
+                                        })
+                                    }
                                 }
                             }
                         }
@@ -1490,21 +1494,54 @@ ApplicationWindow {
                 }
 
                 // Кнопка "Поделиться"
-                Text {
+                Rectangle {
                     id: shareBtn
+                    width: 28; height: 28; radius: 6
                     anchors.right: favBtn.visible ? favBtn.left : parent.right
-                    anchors.rightMargin: favBtn.visible ? 16 : 16
-                    anchors.bottom: parent.bottom; anchors.bottomMargin: 8
-                    text: "📤"
-                    font.pixelSize: 20
+                    anchors.rightMargin: favBtn.visible ? 12 : 16
+                    anchors.bottom: parent.bottom; anchors.bottomMargin: 6
+                    color: "transparent"
+                    border.color: textSecondary; border.width: 1
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "↗"
+                        color: textSecondary
+                        font.pixelSize: 16
+                    }
 
                     MouseArea {
-                        anchors.fill: parent; anchors.margins: -8
+                        anchors.fill: parent
                         onClicked: {
-                            var md = markdownService.loadMarkdown(articleFile)
-                            Qt.openUrlExternally("mailto:?subject=" + encodeURIComponent(articleTitle) + "&body=" + encodeURIComponent(md.substring(0, 500) + "\n\n..."))
+                            // Копируем контент в буфер обмена
+                            shareTextEdit.text = rawMd
+                            shareTextEdit.selectAll()
+                            shareTextEdit.copy()
+                            shareTextEdit.deselect()
+                            shareLabel.visible = true
+                            shareTimer.start()
                         }
                     }
+                }
+
+                // Скрытый TextEdit для копирования
+                TextEdit { id: shareTextEdit; visible: false }
+
+                // Уведомление "Скопировано"
+                Text {
+                    id: shareLabel
+                    visible: false
+                    text: "Скопировано в буфер"
+                    color: "#30d158"
+                    font.pixelSize: 12
+                    anchors.right: shareBtn.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: shareBtn.verticalCenter
+                }
+                Timer {
+                    id: shareTimer
+                    interval: 2000
+                    onTriggered: shareLabel.visible = false
                 }
 
                 // Кнопка "Избранное"
