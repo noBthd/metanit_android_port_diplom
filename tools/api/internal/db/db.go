@@ -212,3 +212,36 @@ func (d *DB) GetFavorites(userID int) ([]models.Article, error) {
 	}
 	return articles, nil
 }
+
+func (d *DB) ToggleFavoriteByFile(userID int, file string) (bool, error) {
+	// Get article ID by file
+	var articleID int
+	err := d.conn.QueryRow("SELECT id FROM articles WHERE file=$1", file).Scan(&articleID)
+	if err != nil {
+		return false, fmt.Errorf("Статья не найдена")
+	}
+
+	// Check if already favorite
+	var count int
+	d.conn.QueryRow("SELECT COUNT(*) FROM favorites WHERE user_id=$1 AND article_id=$2",
+		userID, articleID).Scan(&count)
+
+	if count > 0 {
+		// Remove
+		d.conn.Exec("DELETE FROM favorites WHERE user_id=$1 AND article_id=$2", userID, articleID)
+		return false, nil
+	}
+	// Add
+	d.conn.Exec("INSERT INTO favorites (user_id, article_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
+		userID, articleID)
+	return true, nil
+}
+
+func (d *DB) IsFavoriteByFile(userID int, file string) bool {
+	var count int
+	d.conn.QueryRow(`
+		SELECT COUNT(*) FROM favorites f
+		JOIN articles a ON f.article_id = a.id
+		WHERE f.user_id=$1 AND a.file=$2`, userID, file).Scan(&count)
+	return count > 0
+}

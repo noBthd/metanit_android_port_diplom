@@ -32,8 +32,8 @@ public:
     Q_INVOKABLE void updateProfile(const QString &name, const QString &oldPass, const QString &newPass);
     Q_INVOKABLE void fetchArticles();
     Q_INVOKABLE void fetchArticleContent(const QString &file);
-    Q_INVOKABLE void addFavorite(int articleId);
-    Q_INVOKABLE void removeFavorite(int articleId);
+    Q_INVOKABLE void toggleFavorite(const QString &file);
+    Q_INVOKABLE void checkFavorite(const QString &file);
     Q_INVOKABLE void fetchFavorites();
     Q_INVOKABLE void setFontSize(int size);
     Q_INVOKABLE void setDarkTheme(bool dark);
@@ -49,7 +49,8 @@ signals:
     void articlesLoaded(const QJsonArray &articles);
     void articleContentLoaded(const QString &file, const QString &content);
     void favoritesLoaded(const QJsonArray &favorites);
-    void favoriteToggled();
+    void favoriteToggled(const QString &file, bool isFavorite);
+    void favoriteChecked(const QString &file, bool isFavorite);
     void fontSizeChanged();
     void themeChanged();
 

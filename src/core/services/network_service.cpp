@@ -126,15 +126,27 @@ void NetworkService::fetchArticleContent(const QString &file) {
     });
 }
 
-void NetworkService::addFavorite(int articleId) {
-    QJsonObject body; body["article_id"] = articleId;
-    auto *reply = m_manager->post(makeRequest("/api/favorites"), QJsonDocument(body).toJson());
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() { emit favoriteToggled(); reply->deleteLater(); });
+void NetworkService::toggleFavorite(const QString &file) {
+    QJsonObject body; body["file"] = file;
+    auto *reply = m_manager->post(makeRequest("/api/favorites/toggle"), QJsonDocument(body).toJson());
+    connect(reply, &QNetworkReply::finished, this, [this, reply, file]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            auto obj = QJsonDocument::fromJson(reply->readAll()).object();
+            emit favoriteToggled(file, obj["is_favorite"].toBool());
+        }
+        reply->deleteLater();
+    });
 }
 
-void NetworkService::removeFavorite(int articleId) {
-    auto *reply = m_manager->deleteResource(makeRequest("/api/favorites/" + QString::number(articleId)));
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() { emit favoriteToggled(); reply->deleteLater(); });
+void NetworkService::checkFavorite(const QString &file) {
+    auto *reply = m_manager->get(makeRequest("/api/favorites/check/" + file));
+    connect(reply, &QNetworkReply::finished, this, [this, reply, file]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            auto obj = QJsonDocument::fromJson(reply->readAll()).object();
+            emit favoriteChecked(file, obj["is_favorite"].toBool());
+        }
+        reply->deleteLater();
+    });
 }
 
 void NetworkService::fetchFavorites() {

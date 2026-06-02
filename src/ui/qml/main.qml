@@ -8,18 +8,32 @@ ApplicationWindow {
     width: 390
     height: 844
     title: "Metanit C++"
-    color: "#000000"
+
+    // === Theme colors ===
+    property color bgColor: networkService.darkTheme ? "#000000" : "#f2f2f7"
+    property color cardColor: networkService.darkTheme ? "#1c1c1e" : "#ffffff"
+    property color textColor: networkService.darkTheme ? "#ffffff" : "#000000"
+    property color textSecondary: networkService.darkTheme ? "#8e8e93" : "#6e6e73"
+    property color separatorColor: networkService.darkTheme ? "#38383a" : "#c6c6c8"
+    property color tabBarColor: networkService.darkTheme ? "#1c1c1e" : "#f9f9f9"
+    property color articleTextColor: networkService.darkTheme ? "#e0e0e0" : "#1c1c1e"
+    property color codeBlockBg: networkService.darkTheme ? "#161622" : "#f0f0f5"
+    property color codeBlockBorder: networkService.darkTheme ? "#3a3a4e" : "#d0d0d8"
+    property color codeTextColor: networkService.darkTheme ? "#d4d4d4" : "#333333"
+    property color inputBgColor: networkService.darkTheme ? "#1c1c1e" : "#e8e8ed"
+
+    color: bgColor
 
     // iOS-style tab bar
     footer: Rectangle {
         width: parent.width
         height: 83
-        color: "#1c1c1e"
+        color: tabBarColor
 
         Rectangle {
             width: parent.width
             height: 0.5
-            color: "#38383a"
+            color: separatorColor
         }
 
         RowLayout {
@@ -94,7 +108,7 @@ ApplicationWindow {
         Item {
             Rectangle {
                 anchors.fill: parent
-                color: "#000000"
+                color: bgColor
 
                 Column {
                     anchors.centerIn: parent
@@ -115,7 +129,7 @@ ApplicationWindow {
                     }
                     Text {
                         text: "Войдите в профиль, чтобы\nсохранять статьи в избранное"
-                        color: "#8e8e93"
+                        color: textSecondary
                         font.pixelSize: 15
                         horizontalAlignment: Text.AlignHCenter
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -156,7 +170,7 @@ ApplicationWindow {
 
                     Text {
                         text: "Пока пусто.\nДобавляйте статьи в избранное."
-                        color: "#8e8e93"
+                        color: textSecondary
                         font.pixelSize: 15
                         leftPadding: 20
                         visible: true // TODO: check favorites count
@@ -180,7 +194,7 @@ ApplicationWindow {
         id: settingsPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
 
             Flickable {
                 anchors.fill: parent
@@ -204,7 +218,7 @@ ApplicationWindow {
                     // === Profile section ===
                     Text {
                         text: "ПРОФИЛЬ"
-                        color: "#8e8e93"
+                        color: textSecondary
                         font.pixelSize: 13
                         leftPadding: 36
                     }
@@ -214,7 +228,7 @@ ApplicationWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                         height: profileCol.height
                         radius: 12
-                        color: "#1c1c1e"
+                        color: cardColor
                         clip: true
 
                         Column {
@@ -265,7 +279,7 @@ ApplicationWindow {
                                     anchors.bottom: parent.bottom
                                     anchors.left: parent.left; anchors.leftMargin: 16
                                     anchors.right: parent.right
-                                    height: 0.5; color: "#38383a"
+                                    height: 0.5; color: separatorColor
                                     visible: networkService.isLoggedIn
                                 }
                             }
@@ -279,7 +293,7 @@ ApplicationWindow {
                                     anchors.bottom: parent.bottom
                                     anchors.left: parent.left; anchors.leftMargin: 16
                                     anchors.right: parent.right
-                                    height: 0.5; color: "#38383a"
+                                    height: 0.5; color: separatorColor
                                 }
 
                                 RowLayout {
@@ -332,7 +346,7 @@ ApplicationWindow {
                     // === Основные ===
                     Text {
                         text: "ОСНОВНЫЕ"
-                        color: "#8e8e93"
+                        color: textSecondary
                         font.pixelSize: 13
                         leftPadding: 36
                     }
@@ -343,7 +357,7 @@ ApplicationWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                         height: settingsMainCol.height
                         radius: 12
-                        color: "#1c1c1e"
+                        color: cardColor
                         clip: true
 
                         Column {
@@ -367,7 +381,7 @@ ApplicationWindow {
                                 }
                                 Rectangle {
                                     anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.leftMargin: 16
-                                    anchors.right: parent.right; height: 0.5; color: "#38383a"
+                                    anchors.right: parent.right; height: 0.5; color: separatorColor
                                 }
                             }
 
@@ -384,17 +398,26 @@ ApplicationWindow {
                                         MouseArea { anchors.fill: parent; onClicked: if (networkService.fontSize > 12) networkService.setFontSize(networkService.fontSize - 1) }
                                     }
 
-                                    Text { text: networkService.fontSize; color: "#8e8e93"; font.pixelSize: 15 }
+                                    Text { text: networkService.fontSize; color: textSecondary; font.pixelSize: 15 }
 
                                     Rectangle {
                                         width: 32; height: 28; radius: 6; color: "#2c2c2e"
                                         Text { anchors.centerIn: parent; text: "A+"; color: "#ffffff"; font.pixelSize: 14 }
                                         MouseArea { anchors.fill: parent; onClicked: if (networkService.fontSize < 24) networkService.setFontSize(networkService.fontSize + 1) }
                                     }
+
+                                    Item { width: 8 }
+
+                                    Rectangle {
+                                        width: 60; height: 28; radius: 6
+                                        color: networkService.fontSize === 16 ? "#2c2c2e" : "#0a84ff"
+                                        Text { anchors.centerIn: parent; text: "Сброс"; color: "#ffffff"; font.pixelSize: 12 }
+                                        MouseArea { anchors.fill: parent; onClicked: networkService.setFontSize(16) }
+                                    }
                                 }
                                 Rectangle {
                                     anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.leftMargin: 16
-                                    anchors.right: parent.right; height: 0.5; color: "#38383a"
+                                    anchors.right: parent.right; height: 0.5; color: separatorColor
                                 }
                             }
 
@@ -425,7 +448,7 @@ ApplicationWindow {
                     // Секция "Информация"
                     Text {
                         text: "ИНФОРМАЦИЯ"
-                        color: "#8e8e93"
+                        color: textSecondary
                         font.pixelSize: 13
                         leftPadding: 36
                     }
@@ -435,7 +458,7 @@ ApplicationWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                         height: settingsInfoCol.height
                         radius: 12
-                        color: "#1c1c1e"
+                        color: cardColor
                         clip: true
 
                         Column {
@@ -470,7 +493,7 @@ ApplicationWindow {
                                     anchors.leftMargin: 16
                                     anchors.right: parent.right
                                     height: 0.5
-                                    color: "#38383a"
+                                    color: separatorColor
                                 }
 
                                 MouseArea {
@@ -495,7 +518,7 @@ ApplicationWindow {
                                     }
                                     Text {
                                         text: "1.0.0"
-                                        color: "#8e8e93"
+                                        color: textSecondary
                                         font.pixelSize: 17
                                     }
                                 }
@@ -512,7 +535,7 @@ ApplicationWindow {
         id: aboutPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
 
             Flickable {
                 anchors.fill: parent
@@ -558,7 +581,7 @@ ApplicationWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                         height: aboutContent.height + 32
                         radius: 12
-                        color: "#1c1c1e"
+                        color: cardColor
 
                         Column {
                             id: aboutContent
@@ -583,7 +606,7 @@ ApplicationWindow {
                                 opacity: 0.6
                             }
 
-                            Rectangle { width: parent.width; height: 0.5; color: "#38383a" }
+                            Rectangle { width: parent.width; height: 0.5; color: separatorColor }
 
                             Column {
                                 width: parent.width
@@ -617,7 +640,7 @@ ApplicationWindow {
         id: authPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
             property bool isRegister: false
             property string errorMsg: ""
 
@@ -667,7 +690,7 @@ ApplicationWindow {
                     // Display name (register only)
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         visible: isRegister
 
                         TextInput {
@@ -675,7 +698,7 @@ ApplicationWindow {
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter
-                            Text { text: "Как вас называть?"; color: "#8e8e93"; font.pixelSize: 17
+                            Text { text: "Как вас называть?"; color: textSecondary; font.pixelSize: 17
                                    visible: !nameInput.text && !nameInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
@@ -683,14 +706,14 @@ ApplicationWindow {
                     // Username
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         TextInput {
                             id: usernameInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter
                             inputMethodHints: Qt.ImhNoAutoUppercase
-                            Text { text: "Логин"; color: "#8e8e93"; font.pixelSize: 17
+                            Text { text: "Логин"; color: textSecondary; font.pixelSize: 17
                                    visible: !usernameInput.text && !usernameInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
@@ -698,13 +721,13 @@ ApplicationWindow {
                     // Password
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         TextInput {
                             id: passwordInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
-                            Text { text: "Пароль"; color: "#8e8e93"; font.pixelSize: 17
+                            Text { text: "Пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !passwordInput.text && !passwordInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
@@ -712,14 +735,14 @@ ApplicationWindow {
                     // Confirm password (register only)
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         visible: isRegister
                         TextInput {
                             id: passwordConfirmInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
-                            Text { text: "Повторите пароль"; color: "#8e8e93"; font.pixelSize: 17
+                            Text { text: "Повторите пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !passwordConfirmInput.text && !passwordConfirmInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
@@ -766,7 +789,7 @@ ApplicationWindow {
         id: editProfilePage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
             property string errorMsg: ""
             property string successMsg: ""
 
@@ -808,10 +831,10 @@ ApplicationWindow {
                     Text { text: successMsg; color: "#30d158"; font.pixelSize: 14; leftPadding: 20; visible: successMsg.length > 0 }
 
                     // Display name
-                    Text { text: "ИМЯ"; color: "#8e8e93"; font.pixelSize: 13; leftPadding: 36 }
+                    Text { text: "ИМЯ"; color: textSecondary; font.pixelSize: 13; leftPadding: 36 }
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         TextInput {
                             id: editNameInput; text: networkService.displayName
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
@@ -820,26 +843,26 @@ ApplicationWindow {
                     }
 
                     // Change password section
-                    Text { text: "ИЗМЕНИТЬ ПАРОЛЬ"; color: "#8e8e93"; font.pixelSize: 13; leftPadding: 36 }
+                    Text { text: "ИЗМЕНИТЬ ПАРОЛЬ"; color: textSecondary; font.pixelSize: 13; leftPadding: 36 }
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         TextInput {
                             id: editOldPassInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
-                            Text { text: "Текущий пароль"; color: "#8e8e93"; font.pixelSize: 17
+                            Text { text: "Текущий пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !editOldPassInput.text && !editOldPassInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
                     Rectangle {
                         width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
-                        height: 48; radius: 10; color: "#1c1c1e"
+                        height: 48; radius: 10; color: inputBgColor
                         TextInput {
                             id: editNewPassInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
-                            Text { text: "Новый пароль"; color: "#8e8e93"; font.pixelSize: 17
+                            Text { text: "Новый пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !editNewPassInput.text && !editNewPassInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
@@ -867,7 +890,7 @@ ApplicationWindow {
         id: chaptersPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
 
             Flickable {
                 anchors.fill: parent
@@ -891,7 +914,7 @@ ApplicationWindow {
 
                     Text {
                         text: "150 статей · 17 глав"
-                        color: "#8e8e93"
+                        color: textSecondary
                         font.pixelSize: 15
                         leftPadding: 20
                         bottomPadding: 20
@@ -902,7 +925,7 @@ ApplicationWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                         height: chaptersList.height
                         radius: 12
-                        color: "#1c1c1e"
+                        color: cardColor
                         clip: true
 
                         Column {
@@ -956,7 +979,7 @@ ApplicationWindow {
                                                 }
                                                 Text {
                                                     text: modelData.count + " статей"
-                                                    color: "#8e8e93"
+                                                    color: textSecondary
                                                     font.pixelSize: 13
                                                 }
                                             }
@@ -968,7 +991,7 @@ ApplicationWindow {
                                             anchors.bottom: parent.bottom
                                             anchors.left: parent.left; anchors.leftMargin: 60
                                             anchors.right: parent.right
-                                            height: 0.5; color: "#38383a"
+                                            height: 0.5; color: separatorColor
                                             visible: index < articlesModel.getChapters().length - 1
                                         }
 
@@ -997,7 +1020,7 @@ ApplicationWindow {
         id: articlesListPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
             property int chapterNum: 0
             property string chapterTitle: ""
 
@@ -1042,7 +1065,7 @@ ApplicationWindow {
                         width: parent.width - 32
                         anchors.horizontalCenter: parent.horizontalCenter
                         height: articlesList.height
-                        radius: 12; color: "#1c1c1e"; clip: true
+                        radius: 12; color: cardColor; clip: true
 
                         Column {
                             id: articlesList
@@ -1078,7 +1101,7 @@ ApplicationWindow {
                                             anchors.bottom: parent.bottom
                                             anchors.left: parent.left; anchors.leftMargin: 16
                                             anchors.right: parent.right
-                                            height: 0.5; color: "#38383a"
+                                            height: 0.5; color: separatorColor
                                             visible: index < articlesModel.getArticlesForChapter(chapterNum).length - 1
                                         }
 
@@ -1107,7 +1130,7 @@ ApplicationWindow {
         id: articleViewPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
             property string articleTitle: ""
             property string articleFile: ""
             property var articleBlocks: []
@@ -1120,7 +1143,7 @@ ApplicationWindow {
             Rectangle {
                 id: articleNav
                 width: parent.width; height: 60
-                color: "#000000"; z: 10
+                color: bgColor; z: 10
 
                 MouseArea {
                     anchors.fill: articleBackRow
@@ -1146,16 +1169,28 @@ ApplicationWindow {
                     font.pixelSize: 24
                     visible: networkService.isLoggedIn
 
+                    Connections {
+                        target: networkService
+                        function onFavoriteToggled(file, isFavorite) {
+                            if (file === articleFile) favBtn.isFav = isFavorite
+                        }
+                        function onFavoriteChecked(file, isFavorite) {
+                            if (file === articleFile) favBtn.isFav = isFavorite
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        if (networkService.isLoggedIn)
+                            networkService.checkFavorite(articleFile)
+                    }
+
                     MouseArea {
                         anchors.fill: parent; anchors.margins: -8
-                        onClicked: {
-                            // TODO: toggle favorite via networkService
-                            favBtn.isFav = !favBtn.isFav
-                        }
+                        onClicked: networkService.toggleFavorite(articleFile)
                     }
                 }
 
-                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 0.5; color: "#38383a" }
+                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 0.5; color: separatorColor }
             }
 
             Flickable {
@@ -1194,7 +1229,7 @@ ApplicationWindow {
         id: searchPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
 
             Column {
                 anchors.fill: parent
@@ -1213,7 +1248,7 @@ ApplicationWindow {
                 Rectangle {
                     width: parent.width - 32
                     anchors.horizontalCenter: parent.horizontalCenter
-                    height: 38; radius: 10; color: "#1c1c1e"
+                    height: 38; radius: 10; color: inputBgColor
 
                     RowLayout {
                         anchors.fill: parent
@@ -1229,7 +1264,7 @@ ApplicationWindow {
 
                             Text {
                                 text: "Статьи, темы, ключевые слова"
-                                color: "#8e8e93"; font.pixelSize: 17
+                                color: textSecondary; font.pixelSize: 17
                                 visible: !searchInput.text && !searchInput.activeFocus
                                 anchors.verticalCenter: parent.verticalCenter
                             }
@@ -1238,7 +1273,7 @@ ApplicationWindow {
                         }
 
                         Text {
-                            text: "✕"; color: "#8e8e93"; font.pixelSize: 16
+                            text: "✕"; color: textSecondary; font.pixelSize: 16
                             visible: searchInput.text.length > 0
                             MouseArea {
                                 anchors.fill: parent
@@ -1276,7 +1311,7 @@ ApplicationWindow {
                                 }
                                 Text {
                                     text: "Глава " + chapter + " · " + chapterName
-                                    color: "#8e8e93"; font.pixelSize: 13
+                                    color: textSecondary; font.pixelSize: 13
                                 }
                             }
 
@@ -1286,7 +1321,7 @@ ApplicationWindow {
                         Rectangle {
                             anchors.bottom: parent.bottom
                             anchors.left: parent.left; anchors.right: parent.right
-                            height: 0.5; color: "#38383a"
+                            height: 0.5; color: separatorColor
                         }
 
                         MouseArea {
@@ -1309,7 +1344,7 @@ ApplicationWindow {
         id: articleViewSearchPage
 
         Rectangle {
-            color: "#000000"
+            color: bgColor
             property string articleTitle: ""
             property string articleFile: ""
             property var articleBlocks: []
@@ -1322,7 +1357,7 @@ ApplicationWindow {
             Rectangle {
                 id: searchArticleNav
                 width: parent.width; height: 60
-                color: "#000000"; z: 10
+                color: bgColor; z: 10
 
                 MouseArea {
                     anchors.fill: searchBackRow
@@ -1336,7 +1371,7 @@ ApplicationWindow {
                     Text { text: "‹"; color: "#0a84ff"; font.pixelSize: 28; anchors.verticalCenter: parent.verticalCenter }
                     Text { text: "Поиск"; color: "#0a84ff"; font.pixelSize: 17; anchors.verticalCenter: parent.verticalCenter }
                 }
-                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 0.5; color: "#38383a" }
+                Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 0.5; color: separatorColor }
             }
 
             Flickable {
@@ -1380,7 +1415,7 @@ ApplicationWindow {
             width: parent ? parent.width : 100
             textFormat: Text.RichText
             wrapMode: Text.WordWrap
-            color: "#e0e0e0"
+            color: articleTextColor
             font.pixelSize: networkService.fontSize
             lineHeight: 1.5
             text: blockContent
@@ -1395,8 +1430,8 @@ ApplicationWindow {
             width: parent ? parent.width : 100
             height: codeCol.height
             radius: 10
-            color: "#161622"
-            border.color: "#3a3a4e"
+            color: codeBlockBg
+            border.color: codeBlockBorder
             border.width: 1
 
             Column {
@@ -1427,7 +1462,7 @@ ApplicationWindow {
                         height: 24
                         radius: 5
                         color: copyMa.pressed ? "#3a3a4e" : "#2a2a3a"
-                        border.color: "#3a3a4e"
+                        border.color: codeBlockBorder
                         border.width: 0.5
 
                         Row {
@@ -1498,7 +1533,7 @@ ApplicationWindow {
                         x: 14
                         y: 12
                         text: blockContent
-                        color: "#d4d4d4"
+                        color: codeTextColor
                         font.family: "Menlo"
                         font.pixelSize: 13
                         lineHeight: 1.5

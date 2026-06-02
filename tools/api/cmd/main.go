@@ -57,8 +57,8 @@ func main() {
 
 	// Favorites
 	r.HandleFunc("/api/favorites", h.GetFavorites).Methods("GET")
-	r.HandleFunc("/api/favorites", h.AddFavorite).Methods("POST")
-	r.HandleFunc("/api/favorites/{id}", h.RemoveFavorite).Methods("DELETE")
+	r.HandleFunc("/api/favorites/toggle", h.ToggleFavorite).Methods("POST")
+	r.HandleFunc("/api/favorites/check/{file}", h.CheckFavorite).Methods("GET")
 
 	// Sync
 	r.HandleFunc("/api/sync", h.Sync).Methods("POST")
