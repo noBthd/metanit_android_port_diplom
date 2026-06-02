@@ -13,8 +13,16 @@ MarkdownService::MarkdownService(QObject *parent)
 {
 }
 
+/// Загружает markdown: сначала из кэша, потом из локальных файлов.
+/// На iOS файлов нет — используется только кэш (контент из API).
 QString MarkdownService::loadMarkdown(const QString &fileName)
 {
+    // Проверяем кэш (контент загруженный из API)
+    if (m_contentCache.contains(fileName)) {
+        return m_contentCache[fileName];
+    }
+
+    // Пробуем локальные файлы (десктоп)
     QString appDir = QCoreApplication::applicationDirPath();
     QStringList paths = {
         QDir(appDir).filePath("../../data/articles/" + fileName),
@@ -28,7 +36,13 @@ QString MarkdownService::loadMarkdown(const QString &fileName)
             return in.readAll();
         }
     }
-    return "# Ошибка\n\nНе удалось загрузить файл: " + fileName;
+    return "# Загрузка...\n\nСтатья загружается с сервера.";
+}
+
+/// Сохраняет контент статьи в in-memory кэш.
+void MarkdownService::cacheContent(const QString &fileName, const QString &content)
+{
+    m_contentCache[fileName] = content;
 }
 
 QString MarkdownService::escapeHtml(const QString &text)

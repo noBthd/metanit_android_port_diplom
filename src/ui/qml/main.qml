@@ -24,11 +24,14 @@ ApplicationWindow {
 
     color: bgColor
 
-    // iOS-style tab bar
+    // iOS-style tab bar — учитываем safe area снизу
     footer: Rectangle {
         width: parent.width
-        height: 83
+        height: 56 + safeBottomMargin
         color: tabBarColor
+
+        // Отступ для safe area (iPhone с вырезом)
+        property int safeBottomMargin: Qt.platform.os === "ios" ? 34 : 0
 
         Rectangle {
             width: parent.width
@@ -39,7 +42,7 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
             anchors.topMargin: 4
-            anchors.bottomMargin: 28
+            anchors.bottomMargin: parent.safeBottomMargin
             spacing: 0
 
             Repeater {
@@ -106,54 +109,51 @@ ApplicationWindow {
 
         // ==================== Tab 2: Favorites ====================
         Item {
+            id: favoritesTab
+            property var favList: []
+
+            function refreshFavorites() {
+                if (networkService.isLoggedIn)
+                    networkService.fetchFavorites()
+            }
+
+            Connections {
+                target: networkService
+                function onFavoritesLoaded(favorites) {
+                    var items = []
+                    for (var i = 0; i < favorites.length; i++)
+                        items.push(favorites[i])
+                    favoritesTab.favList = items
+                }
+                function onFavoriteToggled(file, isFavorite) { favoritesTab.refreshFavorites() }
+                function onAuthChanged() { favoritesTab.refreshFavorites() }
+            }
+
+            Component.onCompleted: refreshFavorites()
+            onVisibleChanged: if (visible) refreshFavorites()
+
             Rectangle {
                 anchors.fill: parent
                 color: bgColor
 
+                // Not logged in
                 Column {
                     anchors.centerIn: parent
                     spacing: 12
                     visible: !networkService.isLoggedIn
 
-                    Text {
-                        text: "⭐"
-                        font.pixelSize: 48
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    Text {
-                        text: "Избранное"
-                        color: "#ffffff"
-                        font.pixelSize: 22
-                        font.weight: Font.Bold
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    Text {
-                        text: "Войдите в профиль, чтобы\nсохранять статьи в избранное"
-                        color: textSecondary
-                        font.pixelSize: 15
-                        horizontalAlignment: Text.AlignHCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
+                    Text { text: "⭐"; font.pixelSize: 48; anchors.horizontalCenter: parent.horizontalCenter }
+                    Text { text: "Избранное"; color: textColor; font.pixelSize: 22; font.weight: Font.Bold; anchors.horizontalCenter: parent.horizontalCenter }
+                    Text { text: "Войдите в профиль, чтобы\nсохранять статьи в избранное"; color: textSecondary; font.pixelSize: 15; horizontalAlignment: Text.AlignHCenter; anchors.horizontalCenter: parent.horizontalCenter }
                     Rectangle {
-                        width: 200; height: 44; radius: 10
-                        color: "#0a84ff"
+                        width: 200; height: 44; radius: 10; color: "#0a84ff"
                         anchors.horizontalCenter: parent.horizontalCenter
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Войти"
-                            color: "#ffffff"
-                            font.pixelSize: 17
-                            font.weight: Font.Medium
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: tabStack.currentIndex = 3
-                        }
+                        Text { anchors.centerIn: parent; text: "Войти"; color: "#ffffff"; font.pixelSize: 17; font.weight: Font.Medium }
+                        MouseArea { anchors.fill: parent; onClicked: tabStack.currentIndex = 3 }
                     }
                 }
 
-                // Favorites list when logged in
+                // Logged in — favorites list
                 Column {
                     anchors.fill: parent
                     topPadding: 70
@@ -161,19 +161,80 @@ ApplicationWindow {
 
                     Text {
                         text: "Избранное"
-                        color: "#ffffff"
+                        color: textColor
                         font.pixelSize: 34
                         font.weight: Font.Bold
                         leftPadding: 20
                         bottomPadding: 16
                     }
 
-                    Text {
-                        text: "Пока пусто.\nДобавляйте статьи в избранное."
-                        color: textSecondary
-                        font.pixelSize: 15
-                        leftPadding: 20
-                        visible: true // TODO: check favorites count
+                    // Empty state
+                    Column {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 8
+                        visible: favoritesTab.favList.length === 0
+                        topPadding: 60
+
+                        Text { text: "☆"; font.pixelSize: 40; color: textSecondary; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Пока пусто"; color: textSecondary; font.pixelSize: 17; anchors.horizontalCenter: parent.horizontalCenter }
+                        Text { text: "Нажмите ☆ в статье, чтобы добавить"; color: textSecondary; font.pixelSize: 14; anchors.horizontalCenter: parent.horizontalCenter }
+                    }
+
+                    // List of favorites
+                    ListView {
+                        width: parent.width - 32
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: parent.height - 120
+                        clip: true
+                        visible: favoritesTab.favList.length > 0
+                        model: favoritesTab.favList
+
+                        delegate: Rectangle {
+                            width: ListView.view.width
+                            height: Math.max(56, favTitle.implicitHeight + 30)
+                            color: "transparent"
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.leftMargin: 4; anchors.rightMargin: 4
+                                spacing: 8
+
+                                Column {
+                                    Layout.fillWidth: true; spacing: 2
+                                    Text {
+                                        id: favTitle
+                                        text: modelData.title
+                                        color: textColor; font.pixelSize: 17
+                                        width: parent.width; wrapMode: Text.WordWrap
+                                    }
+                                    Text {
+                                        text: "Глава " + modelData.chapter + " · " + modelData.chapterName
+                                        color: textSecondary; font.pixelSize: 13
+                                    }
+                                }
+
+                                Text { text: "›"; color: "#48484a"; font.pixelSize: 22 }
+                            }
+
+                            Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left; anchors.right: parent.right
+                                height: 0.5; color: separatorColor
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    // Сначала возвращаемся к корню, потом открываем статью
+                                    mainStack.pop(null)
+                                    tabStack.currentIndex = 0
+                                    mainStack.push(articleViewPage, {
+                                        articleTitle: modelData.title,
+                                        articleFile: modelData.file
+                                    })
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -198,7 +259,7 @@ ApplicationWindow {
 
             Flickable {
                 anchors.fill: parent
-                contentHeight: settCol.height + 120
+                contentHeight: settCol.height + 40
                 clip: true
 
                 Column {
@@ -678,7 +739,7 @@ ApplicationWindow {
 
                     Text {
                         text: isRegister ? "Регистрация" : "Вход"
-                        color: "#ffffff"; font.pixelSize: 28; font.weight: Font.Bold; leftPadding: 20
+                        color: textColor; font.pixelSize: 28; font.weight: Font.Bold; leftPadding: 20
                     }
 
                     Text {
@@ -696,7 +757,7 @@ ApplicationWindow {
                         TextInput {
                             id: nameInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17
+                            color: textColor; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter
                             Text { text: "Как вас называть?"; color: textSecondary; font.pixelSize: 17
                                    visible: !nameInput.text && !nameInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
@@ -710,7 +771,7 @@ ApplicationWindow {
                         TextInput {
                             id: usernameInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17
+                            color: textColor; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter
                             inputMethodHints: Qt.ImhNoAutoUppercase
                             Text { text: "Логин"; color: textSecondary; font.pixelSize: 17
@@ -725,7 +786,7 @@ ApplicationWindow {
                         TextInput {
                             id: passwordInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17
+                            color: textColor; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
                             Text { text: "Пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !passwordInput.text && !passwordInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
@@ -740,7 +801,7 @@ ApplicationWindow {
                         TextInput {
                             id: passwordConfirmInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17
+                            color: textColor; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
                             Text { text: "Повторите пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !passwordConfirmInput.text && !passwordConfirmInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
@@ -825,7 +886,7 @@ ApplicationWindow {
                         }
                     }
 
-                    Text { text: "Редактирование профиля"; color: "#ffffff"; font.pixelSize: 28; font.weight: Font.Bold; leftPadding: 20 }
+                    Text { text: "Редактирование\nпрофиля"; color: textColor; font.pixelSize: 28; font.weight: Font.Bold; leftPadding: 20; lineHeight: 1.2 }
 
                     Text { text: errorMsg; color: "#ff453a"; font.pixelSize: 14; leftPadding: 20; visible: errorMsg.length > 0; width: parent.width - 40; wrapMode: Text.WordWrap }
                     Text { text: successMsg; color: "#30d158"; font.pixelSize: 14; leftPadding: 20; visible: successMsg.length > 0 }
@@ -894,7 +955,7 @@ ApplicationWindow {
 
             Flickable {
                 anchors.fill: parent
-                contentHeight: chaptersCol.height + 120
+                contentHeight: chaptersCol.height + 40
                 clip: true
 
                 Column {
@@ -913,7 +974,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: "150 статей · 17 глав"
+                        text: articlesModel.rowCount() + " статей · " + articlesModel.getChapters().length + " глав"
                         color: textSecondary
                         font.pixelSize: 15
                         leftPadding: 20
@@ -956,7 +1017,7 @@ ApplicationWindow {
                                                              "#bf5af2","#64d2ff","#ffd60a","#ff375f",
                                                              "#ac8e68","#0a84ff","#30d158","#ff9f0a",
                                                              "#ff453a","#bf5af2","#64d2ff","#ffd60a","#ff375f"];
-                                                    return c[(modelData.chapter - 1) % c.length];
+                                                    return c[Math.abs(modelData.chapter) % c.length];
                                                 }
                                                 Text {
                                                     anchors.centerIn: parent
@@ -1026,7 +1087,7 @@ ApplicationWindow {
 
             Flickable {
                 anchors.fill: parent
-                contentHeight: artCol.height + 120
+                contentHeight: artCol.height + 40
                 clip: true
 
                 Column {
@@ -1090,7 +1151,7 @@ ApplicationWindow {
                                             Text {
                                                 id: artTitle
                                                 text: modelData.title
-                                                color: "#ffffff"; font.pixelSize: 17
+                                                color: textColor; font.pixelSize: 17
                                                 Layout.fillWidth: true
                                                 wrapMode: Text.WordWrap
                                             }
@@ -1135,9 +1196,24 @@ ApplicationWindow {
             property string articleFile: ""
             property var articleBlocks: []
 
+            /// Загрузка: сначала локально, если нет — из API
             Component.onCompleted: {
                 var md = markdownService.loadMarkdown(articleFile)
-                articleBlocks = markdownService.parseBlocks(md)
+                if (md.indexOf("Загрузка") >= 0) {
+                    networkService.fetchArticleContent(articleFile)
+                } else {
+                    articleBlocks = markdownService.parseBlocks(md)
+                }
+            }
+
+            Connections {
+                target: networkService
+                function onArticleContentLoaded(file, content) {
+                    if (file === articleFile) {
+                        markdownService.cacheContent(file, content)
+                        articleBlocks = markdownService.parseBlocks(content)
+                    }
+                }
             }
 
             Rectangle {
@@ -1177,6 +1253,11 @@ ApplicationWindow {
                         function onFavoriteChecked(file, isFavorite) {
                             if (file === articleFile) favBtn.isFav = isFavorite
                         }
+                        // Сбрасываем звёздочку при выходе из аккаунта
+                        function onAuthChanged() {
+                            if (!networkService.isLoggedIn) favBtn.isFav = false
+                            else networkService.checkFavorite(articleFile)
+                        }
                     }
 
                     Component.onCompleted: {
@@ -1198,7 +1279,7 @@ ApplicationWindow {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                contentHeight: blocksColumn.height + 40
+                contentHeight: blocksColumn.height + navButtons.height + 60
                 clip: true
 
                 Column {
@@ -1217,6 +1298,88 @@ ApplicationWindow {
 
                             property string blockContent: modelData.content
                             property string blockType: modelData.type
+                        }
+                    }
+                }
+
+                // Кнопки навигации: предыдущая / следующая статья
+                Row {
+                    id: navButtons
+                    anchors.top: blocksColumn.bottom
+                    anchors.topMargin: 24
+                    anchors.left: parent.left; anchors.leftMargin: 16
+                    anchors.right: parent.right; anchors.rightMargin: 16
+                    spacing: 12
+
+                    // Предыдущая статья
+                    Rectangle {
+                        width: (parent.width - 12) / 2
+                        height: 44; radius: 10
+                        color: cardColor
+                        border.color: separatorColor; border.width: 0.5
+                        visible: {
+                            var all = articlesModel.getArticlesForChapter(articleFile.split(".")[0])
+                            for (var i = 0; i < all.length; i++)
+                                if (all[i].file === articleFile) return i > 0
+                            return false
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "‹ Предыдущая"
+                            color: "#0a84ff"; font.pixelSize: 15
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                var ch = parseInt(articleFile.split(".")[0])
+                                var all = articlesModel.getArticlesForChapter(ch)
+                                for (var i = 0; i < all.length; i++) {
+                                    if (all[i].file === articleFile && i > 0) {
+                                        mainStack.replace(articleViewPage, {
+                                            articleTitle: all[i-1].title,
+                                            articleFile: all[i-1].file
+                                        })
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Следующая статья
+                    Rectangle {
+                        width: (parent.width - 12) / 2
+                        height: 44; radius: 10
+                        color: "#0a84ff"
+                        visible: {
+                            var ch = parseInt(articleFile.split(".")[0])
+                            var all = articlesModel.getArticlesForChapter(ch)
+                            for (var i = 0; i < all.length; i++)
+                                if (all[i].file === articleFile) return i < all.length - 1
+                            return false
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Следующая ›"
+                            color: "#ffffff"; font.pixelSize: 15
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                var ch = parseInt(articleFile.split(".")[0])
+                                var all = articlesModel.getArticlesForChapter(ch)
+                                for (var i = 0; i < all.length; i++) {
+                                    if (all[i].file === articleFile && i < all.length - 1) {
+                                        mainStack.replace(articleViewPage, {
+                                            articleTitle: all[i+1].title,
+                                            articleFile: all[i+1].file
+                                        })
+                                        break
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1260,7 +1423,7 @@ ApplicationWindow {
                         TextInput {
                             id: searchInput
                             Layout.fillWidth: true
-                            color: "#ffffff"; font.pixelSize: 17
+                            color: textColor; font.pixelSize: 17
 
                             Text {
                                 text: "Статьи, темы, ключевые слова"
@@ -1306,7 +1469,7 @@ ApplicationWindow {
                                 Layout.fillWidth: true; spacing: 2
                                 Text {
                                     id: srchTitle; text: title
-                                    color: "#ffffff"; font.pixelSize: 17
+                                    color: textColor; font.pixelSize: 17
                                     width: parent.width; wrapMode: Text.WordWrap
                                 }
                                 Text {
@@ -1349,9 +1512,24 @@ ApplicationWindow {
             property string articleFile: ""
             property var articleBlocks: []
 
+            /// Загрузка: сначала локально, если нет — из API
             Component.onCompleted: {
                 var md = markdownService.loadMarkdown(articleFile)
-                articleBlocks = markdownService.parseBlocks(md)
+                if (md.indexOf("Загрузка") >= 0) {
+                    networkService.fetchArticleContent(articleFile)
+                } else {
+                    articleBlocks = markdownService.parseBlocks(md)
+                }
+            }
+
+            Connections {
+                target: networkService
+                function onArticleContentLoaded(file, content) {
+                    if (file === articleFile) {
+                        markdownService.cacheContent(file, content)
+                        articleBlocks = markdownService.parseBlocks(content)
+                    }
+                }
             }
 
             Rectangle {
