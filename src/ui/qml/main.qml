@@ -693,6 +693,12 @@ ApplicationWindow {
             color: "#000000"
             property string articleTitle: ""
             property string articleFile: ""
+            property var articleBlocks: []
+
+            Component.onCompleted: {
+                var md = markdownService.loadMarkdown(articleFile)
+                articleBlocks = markdownService.parseBlocks(md)
+            }
 
             Rectangle {
                 id: articleNav
@@ -719,23 +725,26 @@ ApplicationWindow {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                contentHeight: webContent.height + 40
+                contentHeight: blocksColumn.height + 40
                 clip: true
 
-                Text {
-                    id: webContent
+                Column {
+                    id: blocksColumn
                     width: parent.width - 32
                     x: 16
                     topPadding: 16
-                    textFormat: Text.RichText
-                    wrapMode: Text.WordWrap
-                    color: "#e0e0e0"
-                    font.pixelSize: 16
-                    lineHeight: 1.5
+                    spacing: 4
 
-                    Component.onCompleted: {
-                        var md = markdownService.loadMarkdown(articleFile)
-                        text = markdownService.markdownToHtml(md)
+                    Repeater {
+                        model: articleBlocks
+
+                        delegate: Loader {
+                            width: blocksColumn.width
+                            sourceComponent: modelData.type === "code" ? codeBlockComponent : textBlockComponent
+
+                            property string blockContent: modelData.content
+                            property string blockType: modelData.type
+                        }
                     }
                 }
             }
@@ -865,6 +874,12 @@ ApplicationWindow {
             color: "#000000"
             property string articleTitle: ""
             property string articleFile: ""
+            property var articleBlocks: []
+
+            Component.onCompleted: {
+                var md = markdownService.loadMarkdown(articleFile)
+                articleBlocks = markdownService.parseBlocks(md)
+            }
 
             Rectangle {
                 id: searchArticleNav
@@ -891,24 +906,177 @@ ApplicationWindow {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                contentHeight: searchWebContent.height + 40
+                contentHeight: searchBlocksColumn.height + 40
                 clip: true
 
-                Text {
-                    id: searchWebContent
+                Column {
+                    id: searchBlocksColumn
                     width: parent.width - 32
                     x: 16
                     topPadding: 16
-                    textFormat: Text.RichText
-                    wrapMode: Text.WordWrap
-                    color: "#e0e0e0"
-                    font.pixelSize: 16
-                    lineHeight: 1.5
+                    spacing: 4
 
-                    Component.onCompleted: {
-                        var md = markdownService.loadMarkdown(articleFile)
-                        text = markdownService.markdownToHtml(md)
+                    Repeater {
+                        model: articleBlocks
+
+                        delegate: Loader {
+                            width: searchBlocksColumn.width
+                            sourceComponent: modelData.type === "code" ? codeBlockComponent : textBlockComponent
+
+                            property string blockContent: modelData.content
+                            property string blockType: modelData.type
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    // ==================== Shared Components ====================
+
+    // Text block — renders HTML via Rich Text
+    Component {
+        id: textBlockComponent
+
+        Text {
+            width: parent ? parent.width : 100
+            textFormat: Text.RichText
+            wrapMode: Text.WordWrap
+            color: "#e0e0e0"
+            font.pixelSize: 16
+            lineHeight: 1.5
+            text: blockContent
+        }
+    }
+
+    // Code block — native QML with rounded corners, border, copy button
+    Component {
+        id: codeBlockComponent
+
+        Rectangle {
+            width: parent ? parent.width : 100
+            height: codeCol.height
+            radius: 10
+            color: "#161622"
+            border.color: "#3a3a4e"
+            border.width: 1
+
+            Column {
+                id: codeCol
+                width: parent.width
+
+                // Header with copy button
+                Rectangle {
+                    width: parent.width
+                    height: 32
+                    color: "transparent"
+
+                    Text {
+                        text: "C++"
+                        color: "#6a6a7e"
+                        font.pixelSize: 11
+                        font.weight: Font.Medium
+                        anchors.left: parent.left
+                        anchors.leftMargin: 14
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Rectangle {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: copyRow.width + 16
+                        height: 26
+                        radius: 6
+                        color: copyMa.pressed ? "#3a3a4e" : "#2a2a3a"
+
+                        Row {
+                            id: copyRow
+                            anchors.centerIn: parent
+                            spacing: 4
+
+                            Text {
+                                id: copyIcon
+                                text: "📋"
+                                font.pixelSize: 12
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Text {
+                                id: copyLabel
+                                text: "Скопировать"
+                                color: "#8e8e9e"
+                                font.pixelSize: 11
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                        MouseArea {
+                            id: copyMa
+                            anchors.fill: parent
+                            onClicked: {
+                                codeTextEdit.selectAll()
+                                codeTextEdit.copy()
+                                codeTextEdit.deselect()
+                                copyLabel.text = "Скопировано ✓"
+                                copyLabel.color = "#30d158"
+                                copyTimer.start()
+                            }
+                        }
+
+                        Timer {
+                            id: copyTimer
+                            interval: 1500
+                            onTriggered: {
+                                copyLabel.text = "Скопировать"
+                                copyLabel.color = "#8e8e9e"
+                            }
+                        }
+                    }
+
+                    // Separator
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.leftMargin: 12
+                        anchors.rightMargin: 12
+                        height: 0.5
+                        color: "#2a2a3e"
+                    }
+                }
+
+                // Code content — scrollable horizontally
+                Flickable {
+                    width: parent.width
+                    height: codeText.height + 24
+                    contentWidth: codeText.width + 28
+                    clip: true
+                    flickableDirection: Flickable.HorizontalFlick
+
+                    Text {
+                        id: codeText
+                        x: 14
+                        y: 12
+                        text: blockContent
+                        color: "#d4d4d4"
+                        font.family: "Menlo"
+                        font.pixelSize: 13
+                        lineHeight: 1.5
+
+                        // Fallback font
+                        Component.onCompleted: {
+                            if (font.family !== "Menlo") {
+                                font.family = "Courier New"
+                            }
+                        }
+                    }
+                }
+
+                // Hidden TextEdit for copy functionality
+                TextEdit {
+                    id: codeTextEdit
+                    visible: false
+                    text: blockContent
                 }
             }
         }

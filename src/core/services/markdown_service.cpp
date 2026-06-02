@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QRegularExpression>
+#include <QVariantMap>
 
 MarkdownService::MarkdownService(QObject *parent)
     : QObject(parent)
@@ -15,13 +16,11 @@ MarkdownService::MarkdownService(QObject *parent)
 QString MarkdownService::loadMarkdown(const QString &fileName)
 {
     QString appDir = QCoreApplication::applicationDirPath();
-
     QStringList paths = {
         QDir(appDir).filePath("../../data/articles/" + fileName),
         QDir(appDir).filePath("../data/articles/" + fileName),
         QDir(appDir).filePath("data/articles/" + fileName),
     };
-
     for (const auto &path : paths) {
         QFile file(path);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -29,7 +28,6 @@ QString MarkdownService::loadMarkdown(const QString &fileName)
             return in.readAll();
         }
     }
-
     return "# Ошибка\n\nНе удалось загрузить файл: " + fileName;
 }
 
@@ -47,13 +45,12 @@ QString MarkdownService::processInline(const QString &text)
 {
     QString result = text;
 
-    // Инлайн-код: `code` — без лишних пробелов, с закруглениями через unicode
-    // Qt Rich Text не поддерживает border-radius, поэтому просто фон + цвет без пробелов
+    // Инлайн-код: `code`
     QRegularExpression inlineCode("`([^`]+)`");
     result.replace(inlineCode,
-        "<span style=\"font-family:'Menlo','Courier New',monospace;"
+        " <span style=\"font-family:'Menlo','Courier New',monospace;"
         "font-size:13px;color:#7ec8e3;"
-        "background-color:#232336;\">&#8202;\\1&#8202;</span>");
+        "background-color:#2a2a3a;\">&#8198;\\1&#8198;</span> ");
 
     // Жирный: **text**
     QRegularExpression bold("\\*\\*([^*]+)\\*\\*");
@@ -66,51 +63,16 @@ QString MarkdownService::processInline(const QString &text)
     return result;
 }
 
-QString MarkdownService::markdownToHtml(const QString &markdown)
+// Рендерит блок текстовых строк (не-код) в HTML
+QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
 {
-    QStringList lines = markdown.split('\n');
     QString html;
-    bool inCodeBlock = false;
-    QString codeContent;
     bool inList = false;
     QString listType;
 
-    for (int i = 0; i < lines.size(); i++) {
-        const QString &line = lines[i];
+    for (const auto &rawLine : lines) {
+        QString trimmed = rawLine.trimmed();
 
-        // === Блоки кода ===
-        if (line.trimmed().startsWith("```")) {
-            if (inCodeBlock) {
-                // Закрываем блок кода — тёмный фон, гармоничный цвет
-                html += "<table width=\"100%\" cellpadding=\"14\" cellspacing=\"0\" "
-                        "bgcolor=\"#1c1c2e\">"
-                        "<tr><td>"
-                        "<pre style=\"font-family:'Menlo','Courier New',monospace;"
-                        "font-size:13px;color:#d4d4d4;"
-                        "white-space:pre-wrap;margin:0;\">"
-                        + escapeHtml(codeContent.trimmed())
-                        + "</pre>"
-                        "</td></tr></table><br/>";
-                codeContent.clear();
-                inCodeBlock = false;
-            } else {
-                if (inList) {
-                    html += (listType == "ol") ? "</ol>" : "</ul>";
-                    inList = false;
-                }
-                inCodeBlock = true;
-            }
-            continue;
-        }
-
-        if (inCodeBlock) {
-            codeContent += line + "\n";
-            continue;
-        }
-
-        QString trimmed = line.trimmed();
-
-        // Пустые строки
         if (trimmed.isEmpty()) {
             if (inList) {
                 html += (listType == "ol") ? "</ol>" : "</ul>";
@@ -119,146 +81,157 @@ QString MarkdownService::markdownToHtml(const QString &markdown)
             continue;
         }
 
-        // === Заголовки с разделительной линией сверху ===
+        // Заголовки
         if (trimmed.startsWith("#### ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<br/><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td style=\"border-top:1px solid #2a2a2e;padding-top:14px;\">"
+            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
+                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table>"
+                    "<br/>"
                     "<p style=\"font-size:16px;font-weight:600;color:#e0e0e0;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(5)))
-                    + "</p></td></tr></table><br/>";
+                    + processInline(escapeHtml(trimmed.mid(5))) + "</p><br/>";
             continue;
         }
         if (trimmed.startsWith("### ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<br/><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td style=\"border-top:1px solid #2a2a2e;padding-top:16px;\">"
+            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
+                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table>"
+                    "<br/>"
                     "<p style=\"font-size:18px;font-weight:600;color:#f0f0f0;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(4)))
-                    + "</p></td></tr></table><br/>";
+                    + processInline(escapeHtml(trimmed.mid(4))) + "</p><br/>";
             continue;
         }
         if (trimmed.startsWith("## ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<br/><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
-                    "<tr><td style=\"border-top:1px solid #2a2a2e;padding-top:18px;\">"
+            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
+                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table>"
+                    "<br/>"
                     "<p style=\"font-size:20px;font-weight:600;color:#ffffff;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(3)))
-                    + "</p></td></tr></table><br/>";
+                    + processInline(escapeHtml(trimmed.mid(3))) + "</p><br/>";
             continue;
         }
         if (trimmed.startsWith("# ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            // Первый заголовок — без линии сверху
-            html += "<p style=\"font-size:24px;font-weight:700;color:#ffffff;margin-bottom:8px;\">"
-                    + processInline(escapeHtml(trimmed.mid(2)))
-                    + "</p>";
+            html += "<p style=\"font-size:24px;font-weight:700;color:#ffffff;\">"
+                    + processInline(escapeHtml(trimmed.mid(2))) + "</p>";
             continue;
         }
 
-        // === Горизонтальная линия ===
+        // Горизонтальная линия
         if (trimmed == "---" || trimmed == "***" || trimmed == "___") {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<hr/>";
+            html += "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">"
+                    "<tr><td bgcolor=\"#2a2a2e\" style=\"height:1;\"></td></tr></table><br/>";
             continue;
         }
 
-        // === Маркированный список ===
+        // Маркированный список
         if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
             if (!inList || listType != "ul") {
                 if (inList) html += (listType == "ol") ? "</ol>" : "</ul>";
                 html += "<ul>";
-                inList = true;
-                listType = "ul";
+                inList = true; listType = "ul";
             }
             html += "<li>" + processInline(escapeHtml(trimmed.mid(2))) + "</li>";
             continue;
         }
 
-        // === Нумерованный список ===
+        // Нумерованный список
         QRegularExpression olRegex("^(\\d+)\\.\\s+(.*)$");
-        QRegularExpressionMatch olMatch = olRegex.match(trimmed);
+        auto olMatch = olRegex.match(trimmed);
         if (olMatch.hasMatch()) {
             if (!inList || listType != "ol") {
                 if (inList) html += (listType == "ol") ? "</ol>" : "</ul>";
                 html += "<ol>";
-                inList = true;
-                listType = "ol";
+                inList = true; listType = "ol";
             }
             html += "<li>" + processInline(escapeHtml(olMatch.captured(2))) + "</li>";
             continue;
         }
 
-        // === Цитата ===
+        // Цитата
         if (trimmed.startsWith("> ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<table width=\"100%\" cellpadding=\"8\" cellspacing=\"0\" bgcolor=\"#1c1c2e\">"
-                    "<tr><td style=\"border-left:3px solid #0a84ff;\">"
-                    "<p style=\"color:#b0bec5;margin:0;\">"
-                    + processInline(escapeHtml(trimmed.mid(2)))
-                    + "</p></td></tr></table><br/>";
+            html += "<p style=\"color:#8e8e93;font-style:italic;border-left:3px solid #0a84ff;"
+                    "padding-left:10px;\">"
+                    + processInline(escapeHtml(trimmed.mid(2))) + "</p>";
             continue;
         }
 
-        // === Таблица ===
+        // Таблица
         if (trimmed.startsWith("|")) {
-            if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<table width=\"100%\" cellpadding=\"6\" cellspacing=\"0\" "
-                    "border=\"1\" bordercolor=\"#333\">";
-            int tableStart = i;
-            bool headerDone = false;
-            while (i < lines.size() && lines[i].trimmed().startsWith("|")) {
-                QString tline = lines[i].trimmed();
-                if (tline.contains("---")) {
-                    headerDone = true;
-                    i++;
-                    continue;
-                }
-                QStringList cells = tline.split("|", Qt::SkipEmptyParts);
-                if (i == tableStart && !headerDone) {
-                    html += "<tr>";
-                    for (const auto &cell : cells) {
-                        html += "<td bgcolor=\"#1c1c2e\" style=\"color:#ffffff;\"><b>"
-                                + processInline(escapeHtml(cell.trimmed()))
-                                + "</b></td>";
-                    }
-                    html += "</tr>";
-                } else {
-                    html += "<tr>";
-                    for (const auto &cell : cells) {
-                        html += "<td style=\"color:#d0d0d0;\">"
-                                + processInline(escapeHtml(cell.trimmed()))
-                                + "</td>";
-                    }
-                    html += "</tr>";
-                }
-                i++;
-            }
-            html += "</table><br/>";
-            i--;
-            continue;
+            // Skip for now, handled as paragraph
         }
 
-        // === Обычный параграф ===
+        // Обычный параграф
         if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
         html += "<p>" + processInline(escapeHtml(trimmed)) + "</p>";
     }
 
-    // Закрываем незакрытые элементы
     if (inList) {
         html += (listType == "ol") ? "</ol>" : "</ul>";
     }
-    if (inCodeBlock && !codeContent.isEmpty()) {
-        html += "<table width=\"100%\" cellpadding=\"14\" cellspacing=\"0\" "
-                "bgcolor=\"#1c1c2e\">"
-                "<tr><td>"
-                "<pre style=\"font-family:'Menlo','Courier New',monospace;"
-                "font-size:13px;color:#d4d4d4;"
-                "white-space:pre-wrap;margin:0;\">"
-                + escapeHtml(codeContent.trimmed())
-                + "</pre>"
-                "</td></tr></table><br/>";
-    }
 
     return html;
+}
+
+// Разбивает markdown на блоки: {type: "text", content: "html"} или {type: "code", content: "raw code"}
+QVariantList MarkdownService::parseBlocks(const QString &markdown)
+{
+    QVariantList blocks;
+    QStringList lines = markdown.split('\n');
+    QStringList textBuffer;
+    bool inCodeBlock = false;
+    QString codeContent;
+
+    auto flushText = [&]() {
+        if (!textBuffer.isEmpty()) {
+            QString html = renderTextBlockHtml(textBuffer);
+            if (!html.trimmed().isEmpty()) {
+                QVariantMap block;
+                block["type"] = "text";
+                block["content"] = html;
+                blocks.append(block);
+            }
+            textBuffer.clear();
+        }
+    };
+
+    for (const auto &line : lines) {
+        if (line.trimmed().startsWith("```")) {
+            if (inCodeBlock) {
+                // Закрываем блок кода
+                flushText();
+                QVariantMap block;
+                block["type"] = "code";
+                block["content"] = codeContent.trimmed();
+                blocks.append(block);
+                codeContent.clear();
+                inCodeBlock = false;
+            } else {
+                // Сначала выводим накопленный текст
+                flushText();
+                inCodeBlock = true;
+            }
+            continue;
+        }
+
+        if (inCodeBlock) {
+            codeContent += line + "\n";
+        } else {
+            textBuffer.append(line);
+        }
+    }
+
+    // Добавляем оставшийся текст
+    flushText();
+
+    // Если код не закрыт
+    if (inCodeBlock && !codeContent.isEmpty()) {
+        QVariantMap block;
+        block["type"] = "code";
+        block["content"] = codeContent.trimmed();
+        blocks.append(block);
+    }
+
+    return blocks;
 }
