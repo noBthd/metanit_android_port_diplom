@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"fmt"
+	"strings"
 
 	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
@@ -88,7 +89,10 @@ func (d *DB) Register(username, password, displayName string) (*models.AuthRespo
 		username, string(hash), displayName, token,
 	).Scan(&id)
 	if err != nil {
-		return nil, fmt.Errorf("Пользователь с таким именем уже существует")
+		if strings.Contains(err.Error(), "unique") || strings.Contains(err.Error(), "duplicate") {
+			return nil, fmt.Errorf("Пользователь с таким именем уже существует")
+		}
+		return nil, fmt.Errorf("Ошибка регистрации: %v", err)
 	}
 	return &models.AuthResponse{Token: token, Username: username, DisplayName: displayName, UserID: id}, nil
 }

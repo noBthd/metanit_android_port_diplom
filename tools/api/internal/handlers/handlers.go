@@ -174,6 +174,7 @@ func (h *Handler) GetFavorites(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, favs)
 }
 
+
 func (h *Handler) Sync(w http.ResponseWriter, r *http.Request) {
 
 }
