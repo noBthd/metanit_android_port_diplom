@@ -12,7 +12,7 @@ public:
     enum Roles {
         TitleRole = Qt::UserRole + 1,
         LinkRole,
-        ContentRole
+        FileRole
     };
 
     explicit ArticleModel(QObject *parent = nullptr);

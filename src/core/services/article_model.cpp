@@ -23,8 +23,8 @@ QVariant ArticleModel::data(const QModelIndex &index, int role) const
         return article.title;
     case LinkRole:
         return article.link;
-    case ContentRole:
-        return article.content;
+    case FileRole:
+        return article.file;
     default:
         return {};
     }
@@ -35,7 +35,7 @@ QHash<int, QByteArray> ArticleModel::roleNames() const
     return {
         {TitleRole, "title"},
         {LinkRole, "link"},
-        {ContentRole, "content"}
+        {FileRole, "file"}
     };
 }
 

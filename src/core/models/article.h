@@ -4,5 +4,5 @@
 struct Article {
     QString title;
     QString link;
-    QString content;
+    QString file;
 };

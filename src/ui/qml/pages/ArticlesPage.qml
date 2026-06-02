@@ -23,8 +23,6 @@ Page {
 
             spacing: 10
 
-            snapMode: ListView.SnapOneItem
-
             delegate: Rectangle {
                 width: ListView.view.width
                 height: 70
@@ -46,11 +44,13 @@ Page {
                     cursorShape: Qt.PointingHandCursor
 
                     onClicked: {
+                        console.log(file)
+
                         page.StackView.view.push(
                             "qrc:/qml/pages/ArticlePage.qml",
                             {
                                 articleTitle: title,
-                                articleContent: content
+                                articleFile: file
                             }
                         )
                     }
@@ -59,7 +59,6 @@ Page {
         }
     }
 
-    // Заголовок поверх ListView
     Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right

@@ -20,12 +20,14 @@ set(SOURCES
     src/app/main.cpp
     src/core/services/article_service.cpp
     src/core/services/article_model.cpp
+    src/core/services/markdown_service.cpp
 )
 
 set(INCLUDES
     src/core/models/article.h
     src/core/services/article_service.h
     src/core/services/article_model.h
+    src/core/services/markdown_service.h
 )
 
 qt6_add_resources(RESOURCES

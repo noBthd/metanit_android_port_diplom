@@ -6,6 +6,7 @@
 
 #include "services/article_service.h"
 #include "services/article_model.h"
+#include "services/markdown_service.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,6 +14,7 @@ int main(int argc, char *argv[])
 
     ArticleService service;
     ArticleModel model;
+    MarkdownService markdownService;
 
     QString appDir = QCoreApplication::applicationDirPath();
     QString dataPath = QDir(appDir).filePath("../data/articles.json");
@@ -22,8 +24,11 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     
     engine.rootContext()->setContextProperty("articlesModel", &model);
+    engine.rootContext()->setContextProperty("markdownService", &markdownService);
     
     engine.load(QUrl("qrc:/qml/main.qml"));
+
+
 
     return app.exec();
 }
