@@ -272,20 +272,33 @@ ApplicationWindow {
 
                             // Logout button
                             Item {
-                                width: parent.width
-                                height: 48
+                                width: parent.width; height: 48
                                 visible: networkService.isLoggedIn
 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "Выйти из аккаунта"
-                                    color: "#ff453a"
-                                    font.pixelSize: 17
+                                Rectangle {
+                                    anchors.bottom: parent.bottom
+                                    anchors.left: parent.left; anchors.leftMargin: 16
+                                    anchors.right: parent.right
+                                    height: 0.5; color: "#38383a"
+                                }
+
+                                RowLayout {
+                                    anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                                    Text { text: "Редактировать профиль"; color: "#ffffff"; font.pixelSize: 17; Layout.fillWidth: true }
+                                    Text { text: "›"; color: "#48484a"; font.pixelSize: 22 }
                                 }
                                 MouseArea {
                                     anchors.fill: parent
-                                    onClicked: networkService.logout()
+                                    onClicked: settingsStack.push(editProfilePage)
                                 }
+                            }
+
+                            // Logout
+                            Item {
+                                width: parent.width; height: 48
+                                visible: networkService.isLoggedIn
+                                Text { anchors.centerIn: parent; text: "Выйти из аккаунта"; color: "#ff453a"; font.pixelSize: 17 }
+                                MouseArea { anchors.fill: parent; onClicked: networkService.logout() }
                             }
 
                             // Not logged in: Login / Register buttons
@@ -337,63 +350,51 @@ ApplicationWindow {
                             id: settingsMainCol
                             width: parent.width
 
-                            // Заглушка: Тема
+                            // Тема
                             Item {
-                                width: parent.width
-                                height: 48
+                                width: parent.width; height: 48
                                 RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 16
-                                    anchors.rightMargin: 16
+                                    anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                                    Text { text: "Тема"; color: "#ffffff"; font.pixelSize: 17; Layout.fillWidth: true }
                                     Text {
-                                        text: "Тема"
-                                        color: "#ffffff"
-                                        font.pixelSize: 17
-                                        Layout.fillWidth: true
-                                    }
-                                    Text {
-                                        text: "Тёмная"
-                                        color: "#8e8e93"
-                                        font.pixelSize: 17
+                                        text: networkService.darkTheme ? "Тёмная" : "Светлая"
+                                        color: "#0a84ff"; font.pixelSize: 17
                                     }
                                 }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: networkService.setDarkTheme(!networkService.darkTheme)
+                                }
                                 Rectangle {
-                                    anchors.bottom: parent.bottom
-                                    anchors.left: parent.left
-                                    anchors.leftMargin: 16
-                                    anchors.right: parent.right
-                                    height: 0.5
-                                    color: "#38383a"
+                                    anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.leftMargin: 16
+                                    anchors.right: parent.right; height: 0.5; color: "#38383a"
                                 }
                             }
 
-                            // Заглушка: Размер шрифта
+                            // Размер шрифта
                             Item {
-                                width: parent.width
-                                height: 48
+                                width: parent.width; height: 48
                                 RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 16
-                                    anchors.rightMargin: 16
-                                    Text {
-                                        text: "Размер шрифта"
-                                        color: "#ffffff"
-                                        font.pixelSize: 17
-                                        Layout.fillWidth: true
+                                    anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                                    Text { text: "Размер шрифта"; color: "#ffffff"; font.pixelSize: 17; Layout.fillWidth: true }
+
+                                    Rectangle {
+                                        width: 32; height: 28; radius: 6; color: "#2c2c2e"
+                                        Text { anchors.centerIn: parent; text: "A-"; color: "#ffffff"; font.pixelSize: 14 }
+                                        MouseArea { anchors.fill: parent; onClicked: if (networkService.fontSize > 12) networkService.setFontSize(networkService.fontSize - 1) }
                                     }
-                                    Text {
-                                        text: "Стандартный"
-                                        color: "#8e8e93"
-                                        font.pixelSize: 17
+
+                                    Text { text: networkService.fontSize; color: "#8e8e93"; font.pixelSize: 15 }
+
+                                    Rectangle {
+                                        width: 32; height: 28; radius: 6; color: "#2c2c2e"
+                                        Text { anchors.centerIn: parent; text: "A+"; color: "#ffffff"; font.pixelSize: 14 }
+                                        MouseArea { anchors.fill: parent; onClicked: if (networkService.fontSize < 24) networkService.setFontSize(networkService.fontSize + 1) }
                                     }
                                 }
                                 Rectangle {
-                                    anchors.bottom: parent.bottom
-                                    anchors.left: parent.left
-                                    anchors.leftMargin: 16
-                                    anchors.right: parent.right
-                                    height: 0.5
-                                    color: "#38383a"
+                                    anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.leftMargin: 16
+                                    anchors.right: parent.right; height: 0.5; color: "#38383a"
                                 }
                             }
 
@@ -622,9 +623,7 @@ ApplicationWindow {
 
             Connections {
                 target: networkService
-                function onAuthChanged() {
-                    if (networkService.isLoggedIn) settingsStack.pop()
-                }
+                function onAuthChanged() { if (networkService.isLoggedIn) settingsStack.pop() }
                 function onAuthError(error) { errorMsg = error }
             }
 
@@ -637,14 +636,12 @@ ApplicationWindow {
                     id: authCol
                     width: parent.width
                     topPadding: 16
-                    spacing: 20
+                    spacing: 16
 
-                    // Back
                     Item {
                         width: parent.width; height: 44
                         MouseArea {
-                            anchors.fill: authBackRow
-                            anchors.margins: -8
+                            anchors.fill: authBackRow; anchors.margins: -8
                             onClicked: settingsStack.pop()
                         }
                         Row {
@@ -658,101 +655,206 @@ ApplicationWindow {
 
                     Text {
                         text: isRegister ? "Регистрация" : "Вход"
-                        color: "#ffffff"
-                        font.pixelSize: 28
-                        font.weight: Font.Bold
-                        leftPadding: 20
+                        color: "#ffffff"; font.pixelSize: 28; font.weight: Font.Bold; leftPadding: 20
                     }
 
-                    // Error message
                     Text {
-                        text: errorMsg
-                        color: "#ff453a"
-                        font.pixelSize: 14
-                        leftPadding: 20
-                        visible: errorMsg.length > 0
+                        text: errorMsg; color: "#ff453a"; font.pixelSize: 14
+                        leftPadding: 20; visible: errorMsg.length > 0
+                        width: parent.width - 40; wrapMode: Text.WordWrap
                     }
 
-                    // Username field
+                    // Display name (register only)
                     Rectangle {
-                        width: parent.width - 32
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
                         height: 48; radius: 10; color: "#1c1c1e"
+                        visible: isRegister
 
+                        TextInput {
+                            id: nameInput
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17
+                            verticalAlignment: TextInput.AlignVCenter
+                            Text { text: "Как вас называть?"; color: "#8e8e93"; font.pixelSize: 17
+                                   visible: !nameInput.text && !nameInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                    }
+
+                    // Username
+                    Rectangle {
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
                         TextInput {
                             id: usernameInput
-                            anchors.fill: parent
-                            anchors.leftMargin: 16; anchors.rightMargin: 16
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17
                             verticalAlignment: TextInput.AlignVCenter
-
-                            Text {
-                                text: "Имя пользователя"
-                                color: "#8e8e93"; font.pixelSize: 17
-                                visible: !usernameInput.text && !usernameInput.activeFocus
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
+                            inputMethodHints: Qt.ImhNoAutoUppercase
+                            Text { text: "Логин"; color: "#8e8e93"; font.pixelSize: 17
+                                   visible: !usernameInput.text && !usernameInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
 
-                    // Password field
+                    // Password
                     Rectangle {
-                        width: parent.width - 32
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
                         height: 48; radius: 10; color: "#1c1c1e"
-
                         TextInput {
                             id: passwordInput
-                            anchors.fill: parent
-                            anchors.leftMargin: 16; anchors.rightMargin: 16
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
                             color: "#ffffff"; font.pixelSize: 17
-                            verticalAlignment: TextInput.AlignVCenter
-                            echoMode: TextInput.Password
-
-                            Text {
-                                text: "Пароль"
-                                color: "#8e8e93"; font.pixelSize: 17
-                                visible: !passwordInput.text && !passwordInput.activeFocus
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
+                            verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
+                            Text { text: "Пароль"; color: "#8e8e93"; font.pixelSize: 17
+                                   visible: !passwordInput.text && !passwordInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
                     }
 
-                    // Submit button
+                    // Confirm password (register only)
+                    Rectangle {
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
+                        visible: isRegister
+                        TextInput {
+                            id: passwordConfirmInput
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17
+                            verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
+                            Text { text: "Повторите пароль"; color: "#8e8e93"; font.pixelSize: 17
+                                   visible: !passwordConfirmInput.text && !passwordConfirmInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                    }
+
+                    // Submit
                     Rectangle {
                         width: parent.width - 32; height: 48; radius: 10
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        color: "#0a84ff"
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: isRegister ? "Зарегистрироваться" : "Войти"
-                            color: "#ffffff"
-                            font.pixelSize: 17
-                            font.weight: Font.Medium
-                        }
+                        anchors.horizontalCenter: parent.horizontalCenter; color: "#0a84ff"
+                        Text { anchors.centerIn: parent; text: isRegister ? "Зарегистрироваться" : "Войти"
+                               color: "#ffffff"; font.pixelSize: 17; font.weight: Font.Medium }
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
                                 errorMsg = ""
-                                if (isRegister)
-                                    networkService.registerUser(usernameInput.text, passwordInput.text)
-                                else
+                                if (isRegister) {
+                                    if (passwordInput.text !== passwordConfirmInput.text) {
+                                        errorMsg = "Пароли не совпадают"
+                                        return
+                                    }
+                                    if (nameInput.text.length === 0) {
+                                        errorMsg = "Введите имя"
+                                        return
+                                    }
+                                    networkService.registerUser(usernameInput.text, passwordInput.text, nameInput.text)
+                                } else {
                                     networkService.login(usernameInput.text, passwordInput.text)
+                                }
                             }
                         }
                     }
 
-                    // Toggle login/register
                     Text {
                         text: isRegister ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться"
-                        color: "#0a84ff"
-                        font.pixelSize: 15
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        color: "#0a84ff"; font.pixelSize: 15; anchors.horizontalCenter: parent.horizontalCenter
+                        MouseArea { anchors.fill: parent; onClicked: { isRegister = !isRegister; errorMsg = "" } }
+                    }
+                }
+            }
+        }
+    }
 
+    // ==================== Edit Profile Page ====================
+    Component {
+        id: editProfilePage
+
+        Rectangle {
+            color: "#000000"
+            property string errorMsg: ""
+            property string successMsg: ""
+
+            Connections {
+                target: networkService
+                function onProfileUpdated() { successMsg = "Сохранено ✓"; errorMsg = "" }
+                function onProfileError(error) { errorMsg = error; successMsg = "" }
+            }
+
+            Flickable {
+                anchors.fill: parent
+                contentHeight: editCol.height + 120
+                clip: true
+
+                Column {
+                    id: editCol
+                    width: parent.width
+                    topPadding: 16
+                    spacing: 16
+
+                    Item {
+                        width: parent.width; height: 44
+                        MouseArea {
+                            anchors.fill: editBackRow; anchors.margins: -8
+                            onClicked: settingsStack.pop()
+                        }
+                        Row {
+                            id: editBackRow
+                            anchors.verticalCenter: parent.verticalCenter
+                            leftPadding: 8; spacing: 4
+                            Text { text: "‹"; color: "#0a84ff"; font.pixelSize: 28; anchors.verticalCenter: parent.verticalCenter }
+                            Text { text: "Настройки"; color: "#0a84ff"; font.pixelSize: 17; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                    }
+
+                    Text { text: "Редактирование профиля"; color: "#ffffff"; font.pixelSize: 28; font.weight: Font.Bold; leftPadding: 20 }
+
+                    Text { text: errorMsg; color: "#ff453a"; font.pixelSize: 14; leftPadding: 20; visible: errorMsg.length > 0; width: parent.width - 40; wrapMode: Text.WordWrap }
+                    Text { text: successMsg; color: "#30d158"; font.pixelSize: 14; leftPadding: 20; visible: successMsg.length > 0 }
+
+                    // Display name
+                    Text { text: "ИМЯ"; color: "#8e8e93"; font.pixelSize: 13; leftPadding: 36 }
+                    Rectangle {
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
+                        TextInput {
+                            id: editNameInput; text: networkService.displayName
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter
+                        }
+                    }
+
+                    // Change password section
+                    Text { text: "ИЗМЕНИТЬ ПАРОЛЬ"; color: "#8e8e93"; font.pixelSize: 13; leftPadding: 36 }
+                    Rectangle {
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
+                        TextInput {
+                            id: editOldPassInput
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
+                            Text { text: "Текущий пароль"; color: "#8e8e93"; font.pixelSize: 17
+                                   visible: !editOldPassInput.text && !editOldPassInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                    }
+                    Rectangle {
+                        width: parent.width - 32; anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48; radius: 10; color: "#1c1c1e"
+                        TextInput {
+                            id: editNewPassInput
+                            anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
+                            color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
+                            Text { text: "Новый пароль"; color: "#8e8e93"; font.pixelSize: 17
+                                   visible: !editNewPassInput.text && !editNewPassInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
+                        }
+                    }
+
+                    // Save button
+                    Rectangle {
+                        width: parent.width - 32; height: 48; radius: 10
+                        anchors.horizontalCenter: parent.horizontalCenter; color: "#0a84ff"
+                        Text { anchors.centerIn: parent; text: "Сохранить"; color: "#ffffff"; font.pixelSize: 17; font.weight: Font.Medium }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: isRegister = !isRegister
+                            onClicked: {
+                                errorMsg = ""; successMsg = ""
+                                networkService.updateProfile(editNameInput.text, editOldPassInput.text, editNewPassInput.text)
+                            }
                         }
                     }
                 }
@@ -1032,6 +1134,27 @@ ApplicationWindow {
                     Text { text: "‹"; color: "#0a84ff"; font.pixelSize: 28; anchors.verticalCenter: parent.verticalCenter }
                     Text { text: "Назад"; color: "#0a84ff"; font.pixelSize: 17; anchors.verticalCenter: parent.verticalCenter }
                 }
+
+                // Favorite button
+                Text {
+                    id: favBtn
+                    property bool isFav: false
+                    anchors.right: parent.right; anchors.rightMargin: 16
+                    anchors.bottom: parent.bottom; anchors.bottomMargin: 8
+                    text: isFav ? "★" : "☆"
+                    color: isFav ? "#ffd60a" : "#8e8e93"
+                    font.pixelSize: 24
+                    visible: networkService.isLoggedIn
+
+                    MouseArea {
+                        anchors.fill: parent; anchors.margins: -8
+                        onClicked: {
+                            // TODO: toggle favorite via networkService
+                            favBtn.isFav = !favBtn.isFav
+                        }
+                    }
+                }
+
                 Rectangle { anchors.bottom: parent.bottom; width: parent.width; height: 0.5; color: "#38383a" }
             }
 
@@ -1258,7 +1381,7 @@ ApplicationWindow {
             textFormat: Text.RichText
             wrapMode: Text.WordWrap
             color: "#e0e0e0"
-            font.pixelSize: 16
+            font.pixelSize: networkService.fontSize
             lineHeight: 1.5
             text: blockContent
         }

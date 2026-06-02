@@ -30,26 +30,31 @@ func (h *Handler) getUserFromToken(r *http.Request) *models.User {
 	if !strings.HasPrefix(auth, "Bearer ") {
 		return nil
 	}
-	token := strings.TrimPrefix(auth, "Bearer ")
-	user, err := h.DB.GetUserByToken(token)
+	user, err := h.DB.GetUserByToken(strings.TrimPrefix(auth, "Bearer "))
 	if err != nil {
 		return nil
 	}
 	return user
 }
 
-// POST /api/register
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "invalid request", 400)
+		jsonError(w, "Некорректный запрос", 400)
 		return
 	}
-	if len(req.Username) < 3 || len(req.Password) < 4 {
-		jsonError(w, "username min 3 chars, password min 4 chars", 400)
+	if len(req.Username) < 3 {
+		jsonError(w, "Логин должен быть не менее 3 символов", 400)
 		return
 	}
-	resp, err := h.DB.Register(req.Username, req.Password)
+	if len(req.Password) < 4 {
+		jsonError(w, "Пароль должен быть не менее 4 символов", 400)
+		return
+	}
+	if req.DisplayName == "" {
+		req.DisplayName = req.Username
+	}
+	resp, err := h.DB.Register(req.Username, req.Password, req.DisplayName)
 	if err != nil {
 		jsonError(w, err.Error(), 409)
 		return
@@ -57,11 +62,14 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, resp)
 }
 
-// POST /api/login
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req models.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "invalid request", 400)
+		jsonError(w, "Некорректный запрос", 400)
+		return
+	}
+	if req.Username == "" || req.Password == "" {
+		jsonError(w, "Введите логин и пароль", 400)
 		return
 	}
 	resp, err := h.DB.Login(req.Username, req.Password)
@@ -72,21 +80,37 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, resp)
 }
 
-// GET /api/profile
 func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromToken(r)
 	if user == nil {
-		jsonError(w, "unauthorized", 401)
+		jsonError(w, "Необходима авторизация", 401)
 		return
 	}
 	jsonOK(w, user)
 }
 
-// GET /api/articles
+func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	user := h.getUserFromToken(r)
+	if user == nil {
+		jsonError(w, "Необходима авторизация", 401)
+		return
+	}
+	var req models.UpdateProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "Некорректный запрос", 400)
+		return
+	}
+	if err := h.DB.UpdateProfile(user.ID, req.DisplayName, req.OldPassword, req.NewPassword); err != nil {
+		jsonError(w, err.Error(), 400)
+		return
+	}
+	jsonOK(w, map[string]string{"status": "ok"})
+}
+
 func (h *Handler) GetArticles(w http.ResponseWriter, r *http.Request) {
 	articles, err := h.DB.GetArticles()
 	if err != nil {
-		jsonError(w, "db error", 500)
+		jsonError(w, "Ошибка базы данных", 500)
 		return
 	}
 	if articles == nil {
@@ -95,40 +119,36 @@ func (h *Handler) GetArticles(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, articles)
 }
 
-// GET /api/articles/{file}/content
 func (h *Handler) GetArticleContent(w http.ResponseWriter, r *http.Request) {
 	file := strings.TrimPrefix(r.URL.Path, "/api/articles/")
 	file = strings.TrimSuffix(file, "/content")
-
 	content, err := h.DB.GetArticleContent(file)
 	if err != nil {
-		jsonError(w, "not found", 404)
+		jsonError(w, "Статья не найдена", 404)
 		return
 	}
 	jsonOK(w, map[string]string{"content": content})
 }
 
-// POST /api/favorites
 func (h *Handler) AddFavorite(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromToken(r)
 	if user == nil {
-		jsonError(w, "unauthorized", 401)
+		jsonError(w, "Необходима авторизация", 401)
 		return
 	}
 	var req models.FavoriteRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		jsonError(w, "invalid request", 400)
+		jsonError(w, "Некорректный запрос", 400)
 		return
 	}
 	h.DB.AddFavorite(user.ID, req.ArticleID)
 	jsonOK(w, map[string]string{"status": "ok"})
 }
 
-// DELETE /api/favorites/{article_id}
 func (h *Handler) RemoveFavorite(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromToken(r)
 	if user == nil {
-		jsonError(w, "unauthorized", 401)
+		jsonError(w, "Необходима авторизация", 401)
 		return
 	}
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/favorites/")
@@ -137,16 +157,15 @@ func (h *Handler) RemoveFavorite(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, map[string]string{"status": "ok"})
 }
 
-// GET /api/favorites
 func (h *Handler) GetFavorites(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromToken(r)
 	if user == nil {
-		jsonError(w, "unauthorized", 401)
+		jsonError(w, "Необходима авторизация", 401)
 		return
 	}
 	favs, err := h.DB.GetFavorites(user.ID)
 	if err != nil {
-		jsonError(w, "db error", 500)
+		jsonError(w, "Ошибка базы данных", 500)
 		return
 	}
 	if favs == nil {
@@ -155,7 +174,6 @@ func (h *Handler) GetFavorites(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, favs)
 }
 
-// POST /api/sync — triggers crawler + parser and saves to DB
 func (h *Handler) Sync(w http.ResponseWriter, r *http.Request) {
-	jsonOK(w, map[string]string{"status": "sync not implemented via API, use CLI tools"})
+
 }

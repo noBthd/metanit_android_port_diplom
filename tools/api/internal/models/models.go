@@ -13,9 +13,10 @@ type Article struct {
 }
 
 type User struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Token    string `json:"token,omitempty"`
+	ID          int    `json:"id"`
+	Username    string `json:"username"`
+	DisplayName string `json:"display_name"`
+	Token       string `json:"token,omitempty"`
 }
 
 type Favorite struct {
@@ -26,8 +27,9 @@ type Favorite struct {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	DisplayName string `json:"display_name"`
 }
 
 type LoginRequest struct {
@@ -36,9 +38,16 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	Token    string `json:"token"`
-	Username string `json:"username"`
-	UserID   int    `json:"user_id"`
+	Token       string `json:"token"`
+	Username    string `json:"username"`
+	DisplayName string `json:"display_name"`
+	UserID      int    `json:"user_id"`
+}
+
+type UpdateProfileRequest struct {
+	DisplayName string `json:"display_name,omitempty"`
+	NewPassword string `json:"new_password,omitempty"`
+	OldPassword string `json:"old_password,omitempty"`
 }
 
 type FavoriteRequest struct {

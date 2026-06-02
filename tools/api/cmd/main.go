@@ -49,6 +49,7 @@ func main() {
 	r.HandleFunc("/api/register", h.Register).Methods("POST")
 	r.HandleFunc("/api/login", h.Login).Methods("POST")
 	r.HandleFunc("/api/profile", h.Profile).Methods("GET")
+	r.HandleFunc("/api/profile", h.UpdateProfile).Methods("PUT")
 
 	// Articles
 	r.HandleFunc("/api/articles", h.GetArticles).Methods("GET")
