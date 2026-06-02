@@ -55,22 +55,23 @@ QString MarkdownService::escapeHtml(const QString &text)
     return result;
 }
 
-QString MarkdownService::processInline(const QString &text)
+QString MarkdownService::processInline(const QString &text, bool isDark)
 {
     QString result = text;
 
-    // Инлайн-код: `code`
+    // Инлайн-код: `code` — цвета зависят от темы
+    QString codeFg = isDark ? "#7ec8e3" : "#0550ae";
+    QString codeBg = isDark ? "#262636" : "#e8edf3";
+
     QRegularExpression inlineCode("`([^`]+)`");
     result.replace(inlineCode,
         "<span style=\"font-family:'Menlo','Courier New',monospace;"
-        "font-size:13px;color:#7ec8e3;"
-        "background-color:#262636;\"> \\1 </span>");
+        "font-size:13px;color:" + codeFg + ";"
+        "background-color:" + codeBg + ";\"> \\1 </span>");
 
-    // Жирный: **text**
     QRegularExpression bold("\\*\\*([^*]+)\\*\\*");
     result.replace(bold, "<b>\\1</b>");
 
-    // Курсив: *text*
     QRegularExpression italic("(?<!\\*)\\*([^*]+)\\*(?!\\*)");
     result.replace(italic, "<i>\\1</i>");
 
@@ -78,11 +79,14 @@ QString MarkdownService::processInline(const QString &text)
 }
 
 // Рендерит блок текстовых строк (не-код) в HTML
-QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
+QString MarkdownService::renderTextBlockHtml(const QStringList &lines, bool isDark)
 {
     QString html;
     bool inList = false;
     QString listType;
+
+    // Цвета заголовков — НЕ задаём в HTML, пусть QML Text.color управляет
+    // Только размер и жирность задаём через стили
 
     for (const auto &rawLine : lines) {
         QString trimmed = rawLine.trimmed();
@@ -98,26 +102,26 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
         // Заголовки
         if (trimmed.startsWith("#### ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<p style=\"font-size:16px;font-weight:600;color:#e0e0e0;margin-top:16px;\">"
-                    + processInline(escapeHtml(trimmed.mid(5))) + "</p>";
+            html += "<p style=\"font-size:16px;font-weight:600;margin-top:16px;\">"
+                    + processInline(escapeHtml(trimmed.mid(5)), isDark) + "</p>";
             continue;
         }
         if (trimmed.startsWith("### ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<p style=\"font-size:18px;font-weight:600;color:#f0f0f0;margin-top:20px;\">"
-                    + processInline(escapeHtml(trimmed.mid(4))) + "</p>";
+            html += "<p style=\"font-size:18px;font-weight:600;margin-top:20px;\">"
+                    + processInline(escapeHtml(trimmed.mid(4)), isDark) + "</p>";
             continue;
         }
         if (trimmed.startsWith("## ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<p style=\"font-size:20px;font-weight:600;color:#ffffff;margin-top:24px;\">"
-                    + processInline(escapeHtml(trimmed.mid(3))) + "</p>";
+            html += "<p style=\"font-size:20px;font-weight:600;margin-top:24px;\">"
+                    + processInline(escapeHtml(trimmed.mid(3)), isDark) + "</p>";
             continue;
         }
         if (trimmed.startsWith("# ")) {
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-            html += "<p style=\"font-size:24px;font-weight:700;color:#ffffff;\">"
-                    + processInline(escapeHtml(trimmed.mid(2))) + "</p>";
+            html += "<p style=\"font-size:24px;font-weight:700;\">"
+                    + processInline(escapeHtml(trimmed.mid(2)), isDark) + "</p>";
             continue;
         }
 
@@ -136,7 +140,7 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
                 html += "<ul>";
                 inList = true; listType = "ul";
             }
-            html += "<li>" + processInline(escapeHtml(trimmed.mid(2))) + "</li>";
+            html += "<li>" + processInline(escapeHtml(trimmed.mid(2)), isDark) + "</li>";
             continue;
         }
 
@@ -149,7 +153,7 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
                 html += "<ol>";
                 inList = true; listType = "ol";
             }
-            html += "<li>" + processInline(escapeHtml(olMatch.captured(2))) + "</li>";
+            html += "<li>" + processInline(escapeHtml(olMatch.captured(2)), isDark) + "</li>";
             continue;
         }
 
@@ -158,7 +162,7 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
             if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
             html += "<p style=\"color:#8e8e93;font-style:italic;border-left:3px solid #0a84ff;"
                     "padding-left:10px;\">"
-                    + processInline(escapeHtml(trimmed.mid(2))) + "</p>";
+                    + processInline(escapeHtml(trimmed.mid(2)), isDark) + "</p>";
             continue;
         }
 
@@ -169,7 +173,7 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
 
         // Обычный параграф
         if (inList) { html += (listType == "ol") ? "</ol>" : "</ul>"; inList = false; }
-        html += "<p>" + processInline(escapeHtml(trimmed)) + "</p>";
+        html += "<p>" + processInline(escapeHtml(trimmed), isDark) + "</p>";
     }
 
     if (inList) {
@@ -180,7 +184,7 @@ QString MarkdownService::renderTextBlockHtml(const QStringList &lines)
 }
 
 // Разбивает markdown на блоки: {type: "text", content: "html"} или {type: "code", content: "raw code"}
-QVariantList MarkdownService::parseBlocks(const QString &markdown)
+QVariantList MarkdownService::parseBlocks(const QString &markdown, bool isDark)
 {
     QVariantList blocks;
     QStringList lines = markdown.split('\n');
@@ -190,7 +194,7 @@ QVariantList MarkdownService::parseBlocks(const QString &markdown)
 
     auto flushText = [&]() {
         if (!textBuffer.isEmpty()) {
-            QString html = renderTextBlockHtml(textBuffer);
+            QString html = renderTextBlockHtml(textBuffer, isDark);
             if (!html.trimmed().isEmpty()) {
                 QVariantMap block;
                 block["type"] = "text";

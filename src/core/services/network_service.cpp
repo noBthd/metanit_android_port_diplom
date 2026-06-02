@@ -6,15 +6,22 @@
 #include <QSettings>
 
 NetworkService::NetworkService(QObject *parent)
-    : QObject(parent), m_manager(new QNetworkAccessManager(this)), m_baseUrl("http://localhost:8080")
+    : QObject(parent), m_manager(new QNetworkAccessManager(this)), m_baseUrl("http://172.20.10.11:8080")
 {
     loadAuth();
     QSettings s;
     m_fontSize = s.value("ui/fontSize", 16).toInt();
     m_darkTheme = s.value("ui/darkTheme", true).toBool();
+    // Загружаем сохранённый адрес сервера
+    QString savedUrl = s.value("server/url").toString();
+    if (!savedUrl.isEmpty()) m_baseUrl = savedUrl;
 }
 
-void NetworkService::setBaseUrl(const QString &url) { m_baseUrl = url; }
+void NetworkService::setBaseUrl(const QString &url) {
+    m_baseUrl = url;
+    QSettings s;
+    s.setValue("server/url", url);
+}
 bool NetworkService::isLoggedIn() const { return !m_token.isEmpty(); }
 QString NetworkService::username() const { return m_username; }
 QString NetworkService::displayName() const { return m_displayName; }

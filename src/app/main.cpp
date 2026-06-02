@@ -3,6 +3,8 @@
 #include <QQmlApplicationEngine>
 #include <QCoreApplication>
 #include <QDir>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include "services/article_service.h"
 #include "services/article_model.h"

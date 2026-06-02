@@ -8,6 +8,7 @@ ApplicationWindow {
     width: 390
     height: 844
     title: "Metanit C++"
+    visibility: Qt.platform.os === "ios" ? Window.FullScreen : Window.Windowed
 
     // === Theme colors ===
     property color bgColor: networkService.darkTheme ? "#000000" : "#f2f2f7"
@@ -21,6 +22,7 @@ ApplicationWindow {
     property color codeBlockBorder: networkService.darkTheme ? "#3a3a4e" : "#d0d0d8"
     property color codeTextColor: networkService.darkTheme ? "#d4d4d4" : "#333333"
     property color inputBgColor: networkService.darkTheme ? "#1c1c1e" : "#e8e8ed"
+    property color pressedColor: networkService.darkTheme ? "#2c2c2e" : "#d1d1d6"
 
     color: bgColor
 
@@ -156,7 +158,7 @@ ApplicationWindow {
                 // Logged in — favorites list
                 Column {
                     anchors.fill: parent
-                    topPadding: 70
+                    topPadding: 50
                     visible: networkService.isLoggedIn
 
                     Text {
@@ -265,12 +267,12 @@ ApplicationWindow {
                 Column {
                     id: settCol
                     width: parent.width
-                    topPadding: 70
+                    topPadding: 50
                     spacing: 20
 
                     Text {
                         text: "Настройки"
-                        color: "#ffffff"
+                        color: textColor
                         font.pixelSize: 34
                         font.weight: Font.Bold
                         leftPadding: 20
@@ -313,8 +315,8 @@ ApplicationWindow {
                                         color: "#0a84ff"
                                         Text {
                                             anchors.centerIn: parent
-                                            text: networkService.username.length > 0 ? networkService.username[0].toUpperCase() : "?"
-                                            color: "#ffffff"
+                                            text: networkService.displayName.length > 0 ? networkService.displayName[0].toUpperCase() : "?"
+                                            color: textColor
                                             font.pixelSize: 18
                                             font.weight: Font.Bold
                                         }
@@ -324,8 +326,8 @@ ApplicationWindow {
                                         Layout.fillWidth: true
                                         spacing: 2
                                         Text {
-                                            text: networkService.username
-                                            color: "#ffffff"
+                                            text: networkService.displayName
+                                            color: textColor
                                             font.pixelSize: 17
                                         }
                                         Text {
@@ -359,7 +361,7 @@ ApplicationWindow {
 
                                 RowLayout {
                                     anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                                    Text { text: "Редактировать профиль"; color: "#ffffff"; font.pixelSize: 17; Layout.fillWidth: true }
+                                    Text { text: "Редактировать профиль"; color: textColor; font.pixelSize: 17; Layout.fillWidth: true }
                                     Text { text: "›"; color: "#48484a"; font.pixelSize: 22 }
                                 }
                                 MouseArea {
@@ -430,7 +432,7 @@ ApplicationWindow {
                                 width: parent.width; height: 48
                                 RowLayout {
                                     anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                                    Text { text: "Тема"; color: "#ffffff"; font.pixelSize: 17; Layout.fillWidth: true }
+                                    Text { text: "Тема"; color: textColor; font.pixelSize: 17; Layout.fillWidth: true }
                                     Text {
                                         text: networkService.darkTheme ? "Тёмная" : "Светлая"
                                         color: "#0a84ff"; font.pixelSize: 17
@@ -451,10 +453,10 @@ ApplicationWindow {
                                 width: parent.width; height: 48
                                 RowLayout {
                                     anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                                    Text { text: "Размер шрифта"; color: "#ffffff"; font.pixelSize: 17; Layout.fillWidth: true }
+                                    Text { text: "Размер шрифта"; color: textColor; font.pixelSize: 17; Layout.fillWidth: true }
 
                                     Rectangle {
-                                        width: 32; height: 28; radius: 6; color: "#2c2c2e"
+                                        width: 32; height: 28; radius: 6; color: pressedColor
                                         Text { anchors.centerIn: parent; text: "A-"; color: "#ffffff"; font.pixelSize: 14 }
                                         MouseArea { anchors.fill: parent; onClicked: if (networkService.fontSize > 12) networkService.setFontSize(networkService.fontSize - 1) }
                                     }
@@ -462,7 +464,7 @@ ApplicationWindow {
                                     Text { text: networkService.fontSize; color: textSecondary; font.pixelSize: 15 }
 
                                     Rectangle {
-                                        width: 32; height: 28; radius: 6; color: "#2c2c2e"
+                                        width: 32; height: 28; radius: 6; color: pressedColor
                                         Text { anchors.centerIn: parent; text: "A+"; color: "#ffffff"; font.pixelSize: 14 }
                                         MouseArea { anchors.fill: parent; onClicked: if (networkService.fontSize < 24) networkService.setFontSize(networkService.fontSize + 1) }
                                     }
@@ -471,7 +473,7 @@ ApplicationWindow {
 
                                     Rectangle {
                                         width: 60; height: 28; radius: 6
-                                        color: networkService.fontSize === 16 ? "#2c2c2e" : "#0a84ff"
+                                        color: networkService.fontSize === 16 ? pressedColor : "#0a84ff"
                                         Text { anchors.centerIn: parent; text: "Сброс"; color: "#ffffff"; font.pixelSize: 12 }
                                         MouseArea { anchors.fill: parent; onClicked: networkService.setFontSize(16) }
                                     }
@@ -492,7 +494,7 @@ ApplicationWindow {
                                     anchors.rightMargin: 16
                                     Text {
                                         text: "Очистить кэш"
-                                        color: "#ffffff"
+                                        color: textColor
                                         font.pixelSize: 17
                                         Layout.fillWidth: true
                                     }
@@ -500,6 +502,49 @@ ApplicationWindow {
                                         text: "›"
                                         color: "#48484a"
                                         font.pixelSize: 22
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Секция "Сервер" — адрес API для загрузки статей
+                    Text {
+                        text: "СЕРВЕР"
+                        color: textSecondary
+                        font.pixelSize: 13
+                        leftPadding: 36
+                    }
+
+                    Rectangle {
+                        width: parent.width - 32
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        height: 48
+                        radius: 12
+                        color: cardColor
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 16
+                            anchors.rightMargin: 8
+                            spacing: 8
+
+                            Text { text: "API:"; color: textSecondary; font.pixelSize: 14 }
+                            TextInput {
+                                id: serverUrlInput
+                                Layout.fillWidth: true
+                                color: textColor; font.pixelSize: 14
+                                text: "http://172.20.10.11:8080"
+                                verticalAlignment: TextInput.AlignVCenter
+                            }
+                            Rectangle {
+                                width: 70; height: 30; radius: 6; color: "#0a84ff"
+                                Text { anchors.centerIn: parent; text: "Применить"; color: "#ffffff"; font.pixelSize: 11 }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        networkService.setBaseUrl(serverUrlInput.text)
+                                        networkService.fetchArticles()
                                     }
                                 }
                             }
@@ -537,7 +582,7 @@ ApplicationWindow {
                                     anchors.rightMargin: 16
                                     Text {
                                         text: "О проекте"
-                                        color: "#ffffff"
+                                        color: textColor
                                         font.pixelSize: 17
                                         Layout.fillWidth: true
                                     }
@@ -573,7 +618,7 @@ ApplicationWindow {
                                     anchors.rightMargin: 16
                                     Text {
                                         text: "Версия"
-                                        color: "#ffffff"
+                                        color: textColor
                                         font.pixelSize: 17
                                         Layout.fillWidth: true
                                     }
@@ -630,7 +675,7 @@ ApplicationWindow {
 
                     Text {
                         text: "О проекте"
-                        color: "#ffffff"
+                        color: textColor
                         font.pixelSize: 28
                         font.weight: Font.Bold
                         leftPadding: 20
@@ -652,7 +697,7 @@ ApplicationWindow {
 
                             Text {
                                 text: "Metanit C++ Port"
-                                color: "#ffffff"
+                                color: textColor
                                 font.pixelSize: 20
                                 font.weight: Font.DemiBold
                             }
@@ -899,7 +944,7 @@ ApplicationWindow {
                         TextInput {
                             id: editNameInput; text: networkService.displayName
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter
+                            color: textColor; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter
                         }
                     }
 
@@ -911,7 +956,7 @@ ApplicationWindow {
                         TextInput {
                             id: editOldPassInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
+                            color: textColor; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
                             Text { text: "Текущий пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !editOldPassInput.text && !editOldPassInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
@@ -922,7 +967,7 @@ ApplicationWindow {
                         TextInput {
                             id: editNewPassInput
                             anchors.fill: parent; anchors.leftMargin: 16; anchors.rightMargin: 16
-                            color: "#ffffff"; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
+                            color: textColor; font.pixelSize: 17; verticalAlignment: TextInput.AlignVCenter; echoMode: TextInput.Password
                             Text { text: "Новый пароль"; color: textSecondary; font.pixelSize: 17
                                    visible: !editNewPassInput.text && !editNewPassInput.activeFocus; anchors.verticalCenter: parent.verticalCenter }
                         }
@@ -953,6 +998,16 @@ ApplicationWindow {
         Rectangle {
             color: bgColor
 
+            // Реактивный список глав — обновляется при загрузке из API
+            property var chaptersData: {
+                var rev = articlesModel.revision  // зависимость от revision
+                return articlesModel.getChapters()
+            }
+            property int totalArticles: {
+                var rev = articlesModel.revision
+                return articlesModel.rowCount()
+            }
+
             Flickable {
                 anchors.fill: parent
                 contentHeight: chaptersCol.height + 40
@@ -961,12 +1016,12 @@ ApplicationWindow {
                 Column {
                     id: chaptersCol
                     width: parent.width
-                    topPadding: 70
+                    topPadding: 50
                     spacing: 0
 
                     Text {
                         text: "C++ Учебник"
-                        color: "#ffffff"
+                        color: textColor
                         font.pixelSize: 34
                         font.weight: Font.Bold
                         leftPadding: 20
@@ -974,7 +1029,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: articlesModel.rowCount() + " статей · " + articlesModel.getChapters().length + " глав"
+                        text: totalArticles + " статей · " + chaptersData.length + " глав"
                         color: textSecondary
                         font.pixelSize: 15
                         leftPadding: 20
@@ -994,7 +1049,7 @@ ApplicationWindow {
                             width: parent.width
 
                             Repeater {
-                                model: articlesModel.getChapters()
+                                model: chaptersData
 
                                 delegate: Item {
                                     width: chaptersList.width
@@ -1002,7 +1057,7 @@ ApplicationWindow {
 
                                     Rectangle {
                                         anchors.fill: parent
-                                        color: chapterMa.pressed ? "#2c2c2e" : "transparent"
+                                        color: chapterMa.pressed ? pressedColor : "transparent"
 
                                         RowLayout {
                                             anchors.fill: parent
@@ -1022,7 +1077,7 @@ ApplicationWindow {
                                                 Text {
                                                     anchors.centerIn: parent
                                                     text: modelData.chapter
-                                                    color: "#ffffff"
+                                                    color: textColor
                                                     font.pixelSize: 14
                                                     font.weight: Font.Bold
                                                 }
@@ -1033,7 +1088,7 @@ ApplicationWindow {
                                                 spacing: 2
                                                 Text {
                                                     text: modelData.name
-                                                    color: "#ffffff"
+                                                    color: textColor
                                                     font.pixelSize: 17
                                                     elide: Text.ElideRight
                                                     width: parent.width
@@ -1114,7 +1169,7 @@ ApplicationWindow {
 
                     Text {
                         text: chapterTitle
-                        color: "#ffffff"
+                        color: textColor
                         font.pixelSize: 28
                         font.weight: Font.Bold
                         leftPadding: 20; rightPadding: 20; bottomPadding: 16
@@ -1141,7 +1196,7 @@ ApplicationWindow {
 
                                     Rectangle {
                                         anchors.fill: parent
-                                        color: artMa.pressed ? "#2c2c2e" : "transparent"
+                                        color: artMa.pressed ? pressedColor : "transparent"
 
                                         RowLayout {
                                             anchors.fill: parent
@@ -1195,14 +1250,14 @@ ApplicationWindow {
             property string articleTitle: ""
             property string articleFile: ""
             property var articleBlocks: []
+            property string rawMd: ""
 
-            /// Загрузка: сначала локально, если нет — из API
             Component.onCompleted: {
-                var md = markdownService.loadMarkdown(articleFile)
-                if (md.indexOf("Загрузка") >= 0) {
+                rawMd = markdownService.loadMarkdown(articleFile)
+                if (rawMd.indexOf("Загрузка") >= 0) {
                     networkService.fetchArticleContent(articleFile)
                 } else {
-                    articleBlocks = markdownService.parseBlocks(md)
+                    articleBlocks = markdownService.parseBlocks(rawMd, networkService.darkTheme)
                 }
             }
 
@@ -1211,8 +1266,13 @@ ApplicationWindow {
                 function onArticleContentLoaded(file, content) {
                     if (file === articleFile) {
                         markdownService.cacheContent(file, content)
-                        articleBlocks = markdownService.parseBlocks(content)
+                        rawMd = content
+                        articleBlocks = markdownService.parseBlocks(content, networkService.darkTheme)
                     }
+                }
+                function onThemeChanged() {
+                    if (rawMd.length > 0)
+                        articleBlocks = markdownService.parseBlocks(rawMd, networkService.darkTheme)
                 }
             }
 
@@ -1396,12 +1456,12 @@ ApplicationWindow {
 
             Column {
                 anchors.fill: parent
-                topPadding: 70
+                topPadding: 50
                 spacing: 0
 
                 Text {
                     text: "Поиск"
-                    color: "#ffffff"
+                    color: textColor
                     font.pixelSize: 34
                     font.weight: Font.Bold
                     leftPadding: 20
@@ -1511,14 +1571,14 @@ ApplicationWindow {
             property string articleTitle: ""
             property string articleFile: ""
             property var articleBlocks: []
+            property string rawMd: ""
 
-            /// Загрузка: сначала локально, если нет — из API
             Component.onCompleted: {
-                var md = markdownService.loadMarkdown(articleFile)
-                if (md.indexOf("Загрузка") >= 0) {
+                rawMd = markdownService.loadMarkdown(articleFile)
+                if (rawMd.indexOf("Загрузка") >= 0) {
                     networkService.fetchArticleContent(articleFile)
                 } else {
-                    articleBlocks = markdownService.parseBlocks(md)
+                    articleBlocks = markdownService.parseBlocks(rawMd, networkService.darkTheme)
                 }
             }
 
@@ -1527,8 +1587,13 @@ ApplicationWindow {
                 function onArticleContentLoaded(file, content) {
                     if (file === articleFile) {
                         markdownService.cacheContent(file, content)
-                        articleBlocks = markdownService.parseBlocks(content)
+                        rawMd = content
+                        articleBlocks = markdownService.parseBlocks(content, networkService.darkTheme)
                     }
+                }
+                function onThemeChanged() {
+                    if (rawMd.length > 0)
+                        articleBlocks = markdownService.parseBlocks(rawMd, networkService.darkTheme)
                 }
             }
 

@@ -53,6 +53,8 @@ void ArticleModel::setArticles(const std::vector<Article>& articles)
     beginResetModel();
     m_articles = articles;
     endResetModel();
+    m_revision++;
+    emit revisionChanged();
 }
 
 QVariantList ArticleModel::getChapters() const

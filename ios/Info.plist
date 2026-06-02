@@ -48,6 +48,13 @@
     <key>UIStatusBarStyle</key>
     <string>UIStatusBarStyleLightContent</string>
     
+    <!-- Контент под status bar -->
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <false/>
+    
+    <key>UIStatusBarHidden</key>
+    <false/>
+    
     <!-- Разрешить HTTP (для локального API сервера) -->
     <key>NSAppTransportSecurity</key>
     <dict>
