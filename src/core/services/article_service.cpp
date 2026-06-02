@@ -25,7 +25,9 @@ std::vector<Article> ArticleService::loadArticles(const QString& path)
         Article a;
         a.title = obj["title"].toString();
         a.link = obj["link"].toString();
-        a.file = "../data/articles/" + obj["file"].toString();
+        a.file = obj["file"].toString();
+        a.chapter = obj["chapter"].toInt();
+        a.chapterName = obj["chapterName"].toString();
 
         result.push_back(a);
     }

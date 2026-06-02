@@ -45,6 +45,7 @@ _deps
 # Build directories
 .cache/
 build/
+build-ios/
 cmake-build-*/
 out/
 

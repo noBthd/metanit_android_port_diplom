@@ -39,13 +39,7 @@ qt_wrap_cpp(MOC_SOURCES ${INCLUDES})
 add_executable(metanit_port
     ${MOC_SOURCES}
     ${SOURCES}
-    ${INCLUDES}
     ${RESOURCES}
-)
-
-target_sources(metanit_port 
-    PRIVATE 
-        ${SOURCES}
 )
 
 target_include_directories(metanit_port 

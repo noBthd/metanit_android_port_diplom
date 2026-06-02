@@ -2,751 +2,1051 @@
   {
     "title": "Язык программирования С++",
     "link": "https://metanit.com/cpp/tutorial/1.1.php",
-    "file": "1.1.md"
+    "file": "1.1.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Первая программа на Windows. Компилятор g++",
     "link": "https://metanit.com/cpp/tutorial/1.2.php",
-    "file": "1.2.md"
+    "file": "1.2.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Первая программа на Windows. Компилятор Clang",
     "link": "https://metanit.com/cpp/tutorial/1.8.php",
-    "file": "1.8.md"
+    "file": "1.8.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Первая программа на Windows. Компилятор Microsoft Visual C++",
     "link": "https://metanit.com/cpp/tutorial/1.10.php",
-    "file": "1.10.md"
+    "file": "1.10.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Первая программа на Linux. Компилятор g++",
     "link": "https://metanit.com/cpp/tutorial/1.3.php",
-    "file": "1.3.md"
+    "file": "1.3.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Первая программа на MacOS. Компилятор Clang",
     "link": "https://metanit.com/cpp/tutorial/1.6.php",
-    "file": "1.6.md"
+    "file": "1.6.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Настройка параметров компиляции",
     "link": "https://metanit.com/cpp/tutorial/1.9.php",
-    "file": "1.9.md"
+    "file": "1.9.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Локализация и кириллица в консоли",
     "link": "https://metanit.com/cpp/tutorial/1.5.php",
-    "file": "1.5.md"
+    "file": "1.5.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Структура программы",
     "link": "https://metanit.com/cpp/tutorial/2.1.php",
-    "file": "2.1.md"
+    "file": "2.1.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Переменные",
     "link": "https://metanit.com/cpp/tutorial/2.2.php",
-    "file": "2.2.md"
+    "file": "2.2.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Типы данных",
     "link": "https://metanit.com/cpp/tutorial/2.3.php",
-    "file": "2.3.md"
+    "file": "2.3.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Константы",
     "link": "https://metanit.com/cpp/tutorial/2.5.php",
-    "file": "2.5.md"
+    "file": "2.5.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Ввод и вывод в консоли",
     "link": "https://metanit.com/cpp/tutorial/2.10.php",
-    "file": "2.10.md"
+    "file": "2.10.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "using. Подключение пространств имен и определение псевдонимов",
     "link": "https://metanit.com/cpp/tutorial/2.11.php",
-    "file": "2.11.md"
+    "file": "2.11.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Арифметические операции",
     "link": "https://metanit.com/cpp/tutorial/2.6.php",
-    "file": "2.6.md"
+    "file": "2.6.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Статическая типизация и преобразования типов",
     "link": "https://metanit.com/cpp/tutorial/2.4.php",
-    "file": "2.4.md"
+    "file": "2.4.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Поразрядные операции",
     "link": "https://metanit.com/cpp/tutorial/2.8.php",
-    "file": "2.8.md"
+    "file": "2.8.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Операции присваивания",
     "link": "https://metanit.com/cpp/tutorial/2.9.php",
-    "file": "2.9.md"
+    "file": "2.9.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Условные выражения",
     "link": "https://metanit.com/cpp/tutorial/2.7.php",
-    "file": "2.7.md"
+    "file": "2.7.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Конструкция if-else и тернарный оператор",
     "link": "https://metanit.com/cpp/tutorial/2.12.php",
-    "file": "2.12.md"
+    "file": "2.12.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Конструкция switch-case",
     "link": "https://metanit.com/cpp/tutorial/2.17.php",
-    "file": "2.17.md"
+    "file": "2.17.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Циклы",
     "link": "https://metanit.com/cpp/tutorial/2.13.php",
-    "file": "2.13.md"
+    "file": "2.13.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Ссылки",
     "link": "https://metanit.com/cpp/tutorial/2.14.php",
-    "file": "2.14.md"
+    "file": "2.14.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Массивы",
     "link": "https://metanit.com/cpp/tutorial/2.15.php",
-    "file": "2.15.md"
+    "file": "2.15.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Многомерные массивы",
     "link": "https://metanit.com/cpp/tutorial/2.18.php",
-    "file": "2.18.md"
+    "file": "2.18.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Массивы символов",
     "link": "https://metanit.com/cpp/tutorial/2.19.php",
-    "file": "2.19.md"
+    "file": "2.19.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Введение в строки",
     "link": "https://metanit.com/cpp/tutorial/2.16.php",
-    "file": "2.16.md"
+    "file": "2.16.md",
+    "chapter": 2,
+    "chapterName": "Основы С++"
   },
   {
     "title": "Что такое указатели",
     "link": "https://metanit.com/cpp/tutorial/4.1.php",
-    "file": "4.1.md"
+    "file": "4.1.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Операции с указателями",
     "link": "https://metanit.com/cpp/tutorial/4.2.php",
-    "file": "4.2.md"
+    "file": "4.2.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Арифметика указателей",
     "link": "https://metanit.com/cpp/tutorial/4.3.php",
-    "file": "4.3.md"
+    "file": "4.3.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Константы и указатели",
     "link": "https://metanit.com/cpp/tutorial/4.4.php",
-    "file": "4.4.md"
+    "file": "4.4.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Указатели и массивы",
     "link": "https://metanit.com/cpp/tutorial/4.5.php",
-    "file": "4.5.md"
+    "file": "4.5.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Определение и объявление функций",
     "link": "https://metanit.com/cpp/tutorial/3.1.php",
-    "file": "3.1.md"
+    "file": "3.1.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Область видимости объектов",
     "link": "https://metanit.com/cpp/tutorial/3.7.php",
-    "file": "3.7.md"
+    "file": "3.7.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Параметры функции",
     "link": "https://metanit.com/cpp/tutorial/3.2.php",
-    "file": "3.2.md"
+    "file": "3.2.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Передача аргументов по значению и по ссылке",
     "link": "https://metanit.com/cpp/tutorial/3.3.php",
-    "file": "3.3.md"
+    "file": "3.3.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Константные параметры",
     "link": "https://metanit.com/cpp/tutorial/3.4.php",
-    "file": "3.4.md"
+    "file": "3.4.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Оператор return и возвращение результата",
     "link": "https://metanit.com/cpp/tutorial/3.5.php",
-    "file": "3.5.md"
+    "file": "3.5.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Указатели в параметрах функции",
     "link": "https://metanit.com/cpp/tutorial/4.6.php",
-    "file": "4.6.md"
+    "file": "4.6.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Массивы в параметрах функции",
     "link": "https://metanit.com/cpp/tutorial/4.7.php",
-    "file": "4.7.md"
+    "file": "4.7.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Параметры функции main",
     "link": "https://metanit.com/cpp/tutorial/3.10.php",
-    "file": "3.10.md"
+    "file": "3.10.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Возвращение указателей и ссылок",
     "link": "https://metanit.com/cpp/tutorial/4.13.php",
-    "file": "4.13.md"
+    "file": "4.13.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Перегрузка функций",
     "link": "https://metanit.com/cpp/tutorial/4.14.php",
-    "file": "4.14.md"
+    "file": "4.14.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Рекурсивные функции",
     "link": "https://metanit.com/cpp/tutorial/3.6.php",
-    "file": "3.6.md"
+    "file": "3.6.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Рекурсия на примере быстрой сортировки",
     "link": "https://metanit.com/cpp/tutorial/3.11.php",
-    "file": "3.11.md"
+    "file": "3.11.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Указатели на функции",
     "link": "https://metanit.com/cpp/tutorial/4.8.php",
-    "file": "4.8.md"
+    "file": "4.8.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Указатели на функции как параметры",
     "link": "https://metanit.com/cpp/tutorial/4.9.php",
-    "file": "4.9.md"
+    "file": "4.9.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Тип функции",
     "link": "https://metanit.com/cpp/tutorial/4.15.php",
-    "file": "4.15.md"
+    "file": "4.15.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Указатель на функцию как возвращаемое значение",
     "link": "https://metanit.com/cpp/tutorial/4.10.php",
-    "file": "4.10.md"
+    "file": "4.10.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Разделение программы на файлы",
     "link": "https://metanit.com/cpp/tutorial/3.8.php",
-    "file": "3.8.md"
+    "file": "3.8.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Внешние объекты",
     "link": "https://metanit.com/cpp/tutorial/3.9.php",
-    "file": "3.9.md"
+    "file": "3.9.md",
+    "chapter": 3,
+    "chapterName": "Функции"
   },
   {
     "title": "Динамические объекты",
     "link": "https://metanit.com/cpp/tutorial/4.11.php",
-    "file": "4.11.md"
+    "file": "4.11.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
     "title": "Динамические массивы",
     "link": "https://metanit.com/cpp/tutorial/4.12.php",
-    "file": "4.12.md"
+    "file": "4.12.md",
+    "chapter": 4,
+    "chapterName": "Указатели и ссылки"
   },
   {
-    "title": "unique_ptr\u003cT\u003e",
+    "title": "unique_ptr<T>",
     "link": "https://metanit.com/cpp/tutorial/11.1.php",
-    "file": "11.1.md"
+    "file": "11.1.md",
+    "chapter": 11,
+    "chapterName": "Умные указатели"
   },
   {
-    "title": "shared_ptr\u003cT\u003e",
+    "title": "shared_ptr<T>",
     "link": "https://metanit.com/cpp/tutorial/11.2.php",
-    "file": "11.2.md"
+    "file": "11.2.md",
+    "chapter": 11,
+    "chapterName": "Умные указатели"
   },
   {
     "title": "Определение классов",
     "link": "https://metanit.com/cpp/tutorial/5.1.php",
-    "file": "5.1.md"
+    "file": "5.1.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Конструкторы и инициализация объектов",
     "link": "https://metanit.com/cpp/tutorial/5.2.php",
-    "file": "5.2.md"
+    "file": "5.2.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Управление доступом. Инкапсуляция",
     "link": "https://metanit.com/cpp/tutorial/5.4.php",
-    "file": "5.4.md"
+    "file": "5.4.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Объявление и определение функций класса",
     "link": "https://metanit.com/cpp/tutorial/5.3.php",
-    "file": "5.3.md"
+    "file": "5.3.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Конструктор копирования",
     "link": "https://metanit.com/cpp/tutorial/5.17.php",
-    "file": "5.17.md"
+    "file": "5.17.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Константные объекты и функции",
     "link": "https://metanit.com/cpp/tutorial/5.18.php",
-    "file": "5.18.md"
+    "file": "5.18.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Ключевое слово this",
     "link": "https://metanit.com/cpp/tutorial/5.6.php",
-    "file": "5.6.md"
+    "file": "5.6.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Дружественные функции и классы",
     "link": "https://metanit.com/cpp/tutorial/5.5.php",
-    "file": "5.5.md"
+    "file": "5.5.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Статические члены класса",
     "link": "https://metanit.com/cpp/tutorial/5.7.php",
-    "file": "5.7.md"
+    "file": "5.7.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Деструктор",
     "link": "https://metanit.com/cpp/tutorial/5.13.php",
-    "file": "5.13.md"
+    "file": "5.13.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Структуры",
     "link": "https://metanit.com/cpp/tutorial/5.8.php",
-    "file": "5.8.md"
+    "file": "5.8.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Перечисления",
     "link": "https://metanit.com/cpp/tutorial/5.9.php",
-    "file": "5.9.md"
+    "file": "5.9.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Наследование",
     "link": "https://metanit.com/cpp/tutorial/5.10.php",
-    "file": "5.10.md"
+    "file": "5.10.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Управление доступом в базовых и производных классах",
     "link": "https://metanit.com/cpp/tutorial/5.22.php",
-    "file": "5.22.md"
+    "file": "5.22.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Скрытие функционала базового класса",
     "link": "https://metanit.com/cpp/tutorial/5.23.php",
-    "file": "5.23.md"
+    "file": "5.23.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Множественное наследование",
     "link": "https://metanit.com/cpp/tutorial/5.24.php",
-    "file": "5.24.md"
+    "file": "5.24.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Виртуальные функции и их переопределение",
     "link": "https://metanit.com/cpp/tutorial/5.11.php",
-    "file": "5.11.md"
+    "file": "5.11.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Преобразование типов",
     "link": "https://metanit.com/cpp/tutorial/5.25.php",
-    "file": "5.25.md"
+    "file": "5.25.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Динамическое преобразование",
     "link": "https://metanit.com/cpp/tutorial/5.26.php",
-    "file": "5.26.md"
+    "file": "5.26.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Особенности динамического связывания",
     "link": "https://metanit.com/cpp/tutorial/5.27.php",
-    "file": "5.27.md"
+    "file": "5.27.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Чистые виртуальные функции и абстрактные классы",
     "link": "https://metanit.com/cpp/tutorial/5.12.php",
-    "file": "5.12.md"
+    "file": "5.12.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Перегрузка операторов",
     "link": "https://metanit.com/cpp/tutorial/5.14.php",
-    "file": "5.14.md"
+    "file": "5.14.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Операторы преобразования типов",
     "link": "https://metanit.com/cpp/tutorial/5.15.php",
-    "file": "5.15.md"
+    "file": "5.15.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Оператор индексирования",
     "link": "https://metanit.com/cpp/tutorial/5.20.php",
-    "file": "5.20.md"
+    "file": "5.20.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Переопределение оператора присваивания",
     "link": "https://metanit.com/cpp/tutorial/5.21.php",
-    "file": "5.21.md"
+    "file": "5.21.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Пространства имен",
     "link": "https://metanit.com/cpp/tutorial/5.16.php",
-    "file": "5.16.md"
+    "file": "5.16.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Вложенные классы",
     "link": "https://metanit.com/cpp/tutorial/5.19.php",
-    "file": "5.19.md"
+    "file": "5.19.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Указатели на поля и методы класса",
     "link": "https://metanit.com/cpp/tutorial/5.29.php",
-    "file": "5.29.md"
+    "file": "5.29.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Обработка исключений",
     "link": "https://metanit.com/cpp/tutorial/6.1.php",
-    "file": "6.1.md"
+    "file": "6.1.md",
+    "chapter": 6,
+    "chapterName": "Обработка исключений"
   },
   {
     "title": "Вложенные try-catch",
     "link": "https://metanit.com/cpp/tutorial/6.4.php",
-    "file": "6.4.md"
+    "file": "6.4.md",
+    "chapter": 6,
+    "chapterName": "Обработка исключений"
   },
   {
     "title": "Создание своих типов исключений",
     "link": "https://metanit.com/cpp/tutorial/6.5.php",
-    "file": "6.5.md"
+    "file": "6.5.md",
+    "chapter": 6,
+    "chapterName": "Обработка исключений"
   },
   {
     "title": "Тип exception",
     "link": "https://metanit.com/cpp/tutorial/6.2.php",
-    "file": "6.2.md"
+    "file": "6.2.md",
+    "chapter": 6,
+    "chapterName": "Обработка исключений"
   },
   {
     "title": "Типы исключений",
     "link": "https://metanit.com/cpp/tutorial/6.3.php",
-    "file": "6.3.md"
+    "file": "6.3.md",
+    "chapter": 6,
+    "chapterName": "Обработка исключений"
   },
   {
     "title": "Шаблоны функций",
     "link": "https://metanit.com/cpp/tutorial/9.2.php",
-    "file": "9.2.md"
+    "file": "9.2.md",
+    "chapter": 9,
+    "chapterName": "Шаблоны"
   },
   {
     "title": "Шаблон класса",
     "link": "https://metanit.com/cpp/tutorial/9.1.php",
-    "file": "9.1.md"
+    "file": "9.1.md",
+    "chapter": 9,
+    "chapterName": "Шаблоны"
   },
   {
     "title": "Специализация шаблона класса",
     "link": "https://metanit.com/cpp/tutorial/9.3.php",
-    "file": "9.3.md"
+    "file": "9.3.md",
+    "chapter": 9,
+    "chapterName": "Шаблоны"
   },
   {
     "title": "Наследование и шаблоны классов",
     "link": "https://metanit.com/cpp/tutorial/9.4.php",
-    "file": "9.4.md"
+    "file": "9.4.md",
+    "chapter": 9,
+    "chapterName": "Шаблоны"
   },
   {
     "title": "Типы  контейнеров",
     "link": "https://metanit.com/cpp/tutorial/7.1.php",
-    "file": "7.1.md"
+    "file": "7.1.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Вектор",
     "link": "https://metanit.com/cpp/tutorial/7.2.php",
-    "file": "7.2.md"
+    "file": "7.2.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Итераторы",
     "link": "https://metanit.com/cpp/tutorial/7.3.php",
-    "file": "7.3.md"
+    "file": "7.3.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Операции с векторами",
     "link": "https://metanit.com/cpp/tutorial/7.4.php",
-    "file": "7.4.md"
+    "file": "7.4.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Array",
     "link": "https://metanit.com/cpp/tutorial/7.5.php",
-    "file": "7.5.md"
+    "file": "7.5.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "List",
     "link": "https://metanit.com/cpp/tutorial/7.6.php",
-    "file": "7.6.md"
+    "file": "7.6.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Forward_list",
     "link": "https://metanit.com/cpp/tutorial/7.7.php",
-    "file": "7.7.md"
+    "file": "7.7.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Deque",
     "link": "https://metanit.com/cpp/tutorial/7.8.php",
-    "file": "7.8.md"
+    "file": "7.8.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Стек std::stack",
     "link": "https://metanit.com/cpp/tutorial/7.10.php",
-    "file": "7.10.md"
+    "file": "7.10.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Очередь std::queue",
     "link": "https://metanit.com/cpp/tutorial/7.11.php",
-    "file": "7.11.md"
+    "file": "7.11.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Очередь приоритетов std::priority_queue",
     "link": "https://metanit.com/cpp/tutorial/7.12.php",
-    "file": "7.12.md"
+    "file": "7.12.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Множества",
     "link": "https://metanit.com/cpp/tutorial/7.13.php",
-    "file": "7.13.md"
+    "file": "7.13.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Словарь std::map",
     "link": "https://metanit.com/cpp/tutorial/7.14.php",
-    "file": "7.14.md"
+    "file": "7.14.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Span",
     "link": "https://metanit.com/cpp/tutorial/7.9.php",
-    "file": "7.9.md"
+    "file": "7.9.md",
+    "chapter": 7,
+    "chapterName": "Контейнеры"
   },
   {
     "title": "Определение строк",
     "link": "https://metanit.com/cpp/tutorial/12.1.php",
-    "file": "12.1.md"
+    "file": "12.1.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Строки с поддержкой Unicode",
     "link": "https://metanit.com/cpp/tutorial/12.2.php",
-    "file": "12.2.md"
+    "file": "12.2.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Преобразование типов и строки",
     "link": "https://metanit.com/cpp/tutorial/12.3.php",
-    "file": "12.3.md"
+    "file": "12.3.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Сравнение строк",
     "link": "https://metanit.com/cpp/tutorial/12.4.php",
-    "file": "12.4.md"
+    "file": "12.4.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Получение подстроки и проверка начала и конца строки",
     "link": "https://metanit.com/cpp/tutorial/12.5.php",
-    "file": "12.5.md"
+    "file": "12.5.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Поиск подстроки",
     "link": "https://metanit.com/cpp/tutorial/12.6.php",
-    "file": "12.6.md"
+    "file": "12.6.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Изменение строки",
     "link": "https://metanit.com/cpp/tutorial/12.7.php",
-    "file": "12.7.md"
+    "file": "12.7.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Операции с символами",
     "link": "https://metanit.com/cpp/tutorial/12.8.php",
-    "file": "12.8.md"
+    "file": "12.8.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Программа подсчета слов",
     "link": "https://metanit.com/cpp/tutorial/12.9.php",
-    "file": "12.9.md"
+    "file": "12.9.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "Тип std::string_view",
     "link": "https://metanit.com/cpp/tutorial/12.10.php",
-    "file": "12.10.md"
+    "file": "12.10.md",
+    "chapter": 12,
+    "chapterName": "Строки"
   },
   {
     "title": "rvalue",
     "link": "https://metanit.com/cpp/tutorial/14.1.php",
-    "file": "14.1.md"
+    "file": "14.1.md",
+    "chapter": 14,
+    "chapterName": "rvalue и move-семантика"
   },
   {
     "title": "Конструктор перемещения",
     "link": "https://metanit.com/cpp/tutorial/14.2.php",
-    "file": "14.2.md"
+    "file": "14.2.md",
+    "chapter": 14,
+    "chapterName": "rvalue и move-семантика"
   },
   {
     "title": "Оператор присваивания с перемещением",
     "link": "https://metanit.com/cpp/tutorial/14.3.php",
-    "file": "14.3.md"
+    "file": "14.3.md",
+    "chapter": 14,
+    "chapterName": "rvalue и move-семантика"
   },
   {
     "title": "Роль noexcept при перемещении",
     "link": "https://metanit.com/cpp/tutorial/14.4.php",
-    "file": "14.4.md"
+    "file": "14.4.md",
+    "chapter": 14,
+    "chapterName": "rvalue и move-семантика"
   },
   {
     "title": "Объекты функций",
     "link": "https://metanit.com/cpp/tutorial/15.1.php",
-    "file": "15.1.md"
+    "file": "15.1.md",
+    "chapter": 15,
+    "chapterName": "Объекты функций и лямбды"
   },
   {
     "title": "Лямбда-выражения",
     "link": "https://metanit.com/cpp/tutorial/15.2.php",
-    "file": "15.2.md"
+    "file": "15.2.md",
+    "chapter": 15,
+    "chapterName": "Объекты функций и лямбды"
   },
   {
     "title": "Захват внешних значений в лямбда-выражениях",
     "link": "https://metanit.com/cpp/tutorial/15.3.php",
-    "file": "15.3.md"
+    "file": "15.3.md",
+    "chapter": 15,
+    "chapterName": "Объекты функций и лямбды"
   },
   {
-    "title": "Шаблон std::function\u003c\u003e",
+    "title": "Шаблон std::function<>",
     "link": "https://metanit.com/cpp/tutorial/15.4.php",
-    "file": "15.4.md"
+    "file": "15.4.md",
+    "chapter": 15,
+    "chapterName": "Объекты функций и лямбды"
   },
   {
     "title": "Минимальный и максимальный элементы",
     "link": "https://metanit.com/cpp/tutorial/16.1.php",
-    "file": "16.1.md"
+    "file": "16.1.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Поиск элементов",
     "link": "https://metanit.com/cpp/tutorial/16.2.php",
-    "file": "16.2.md"
+    "file": "16.2.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Копирование элементов",
     "link": "https://metanit.com/cpp/tutorial/16.3.php",
-    "file": "16.3.md"
+    "file": "16.3.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Удаление элементов и идиома Remove-Erase Idiom",
     "link": "https://metanit.com/cpp/tutorial/16.4.php",
-    "file": "16.4.md"
+    "file": "16.4.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Сортировка",
     "link": "https://metanit.com/cpp/tutorial/16.5.php",
-    "file": "16.5.md"
+    "file": "16.5.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Представления. Фильтрация",
     "link": "https://metanit.com/cpp/tutorial/16.6.php",
-    "file": "16.6.md"
+    "file": "16.6.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Проекция данных",
     "link": "https://metanit.com/cpp/tutorial/16.7.php",
-    "file": "16.7.md"
+    "file": "16.7.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Пропуск элементов. drop_view и drop_while_view",
     "link": "https://metanit.com/cpp/tutorial/16.8.php",
-    "file": "16.8.md"
+    "file": "16.8.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Извлечение диапазона элементов. take_view и take_while_view",
     "link": "https://metanit.com/cpp/tutorial/16.9.php",
-    "file": "16.9.md"
+    "file": "16.9.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Цепочки представлений",
     "link": "https://metanit.com/cpp/tutorial/16.10.php",
-    "file": "16.10.md"
+    "file": "16.10.md",
+    "chapter": 16,
+    "chapterName": "Алгоритмы"
   },
   {
     "title": "Оператор requires",
     "link": "https://metanit.com/cpp/tutorial/17.1.php",
-    "file": "17.1.md"
+    "file": "17.1.md",
+    "chapter": 17,
+    "chapterName": "Концепты и ограничения"
   },
   {
     "title": "Концепты",
     "link": "https://metanit.com/cpp/tutorial/17.2.php",
-    "file": "17.2.md"
+    "file": "17.2.md",
+    "chapter": 17,
+    "chapterName": "Концепты и ограничения"
   },
   {
     "title": "Выражение requires",
     "link": "https://metanit.com/cpp/tutorial/17.3.php",
-    "file": "17.3.md"
+    "file": "17.3.md",
+    "chapter": 17,
+    "chapterName": "Концепты и ограничения"
   },
   {
     "title": "Ограничения типа для auto",
     "link": "https://metanit.com/cpp/tutorial/17.4.php",
-    "file": "17.4.md"
+    "file": "17.4.md",
+    "chapter": 17,
+    "chapterName": "Концепты и ограничения"
   },
   {
     "title": "Базовые типы для работы с потоками",
     "link": "https://metanit.com/cpp/tutorial/8.1.php",
-    "file": "8.1.md"
+    "file": "8.1.md",
+    "chapter": 8,
+    "chapterName": "Работа с потоками"
   },
   {
     "title": "Файловые потоки. Открытие и закрытие",
     "link": "https://metanit.com/cpp/tutorial/8.2.php",
-    "file": "8.2.md"
+    "file": "8.2.md",
+    "chapter": 8,
+    "chapterName": "Работа с потоками"
   },
   {
     "title": "Чтение и запись текстовых файлов",
     "link": "https://metanit.com/cpp/tutorial/8.3.php",
-    "file": "8.3.md"
+    "file": "8.3.md",
+    "chapter": 8,
+    "chapterName": "Работа с потоками"
   },
   {
     "title": "Переопределение операторов ввода и вывода",
     "link": "https://metanit.com/cpp/tutorial/8.4.php",
-    "file": "8.4.md"
+    "file": "8.4.md",
+    "chapter": 8,
+    "chapterName": "Работа с потоками"
   },
   {
     "title": "Математические константы и операции",
     "link": "https://metanit.com/cpp/tutorial/10.1.php",
-    "file": "10.1.md"
+    "file": "10.1.md",
+    "chapter": 10,
+    "chapterName": "Математические операции"
   },
   {
     "title": "Форматирование строк и функция format",
     "link": "https://metanit.com/cpp/tutorial/10.2.php",
-    "file": "10.2.md"
+    "file": "10.2.md",
+    "chapter": 10,
+    "chapterName": "Математические операции"
   },
   {
-    "title": "std::optional\u003cT\u003e",
+    "title": "std::optional<T>",
     "link": "https://metanit.com/cpp/tutorial/10.3.php",
-    "file": "10.3.md"
+    "file": "10.3.md",
+    "chapter": 10,
+    "chapterName": "Математические операции"
   },
   {
     "title": "Управление ресурсами. Идиома RAII",
     "link": "https://metanit.com/cpp/tutorial/5.28.php",
-    "file": "5.28.md"
+    "file": "5.28.md",
+    "chapter": 5,
+    "chapterName": "Классы и объекты"
   },
   {
     "title": "Идиома копирования и замены",
     "link": "https://metanit.com/cpp/tutorial/13.1.php",
-    "file": "13.1.md"
+    "file": "13.1.md",
+    "chapter": 13,
+    "chapterName": "Идиомы С++"
   },
   {
     "title": "Идиома Move-and-Swap",
     "link": "https://metanit.com/cpp/tutorial/13.2.php",
-    "file": "13.2.md"
+    "file": "13.2.md",
+    "chapter": 13,
+    "chapterName": "Идиомы С++"
   },
   {
     "title": "Первая программа в Visual Studio",
     "link": "https://metanit.com/cpp/tutorial/1.4.php",
-    "file": "1.4.md"
+    "file": "1.4.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   },
   {
     "title": "Первая программа в Qt Creator",
     "link": "https://metanit.com/cpp/tutorial/1.7.php",
-    "file": "1.7.md"
+    "file": "1.7.md",
+    "chapter": 1,
+    "chapterName": "Введение в С++"
   }
 ]
